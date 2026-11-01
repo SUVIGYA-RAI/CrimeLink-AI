@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Login - CrimeLink AI{% endblock %}
+
+{% block auth_content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <!-- Logo -->
+        <div class="auth-logo"><i class="bi bi-shield-fill-check"></i></div>
+        <h1 class="auth-title">CrimeLink AI</h1>
+        <p class="auth-subtitle mb-4">Intelligence Management System</p>
+
+        <!-- Login Form -->
+        <form method="post" id="login-form">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label" for="username">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-4">
+                <label class="form-label" for="password">Password</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2 mb-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ form.non_field_errors.0 }}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-cyan w-100 py-2">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login to Dashboard
+            </button>
+        </form>
+
+        <hr class="my-3" style="border-color: var(--border-color);">
+        <p class="text-center text-muted-custom small mb-0">
+            Don't have an account?
+            <a href="{% url 'accounts:register' %}" class="text-cyan">Register here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

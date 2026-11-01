@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - CrimeLink AI{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-6">
+    <div class="d-flex gap-2 mb-3"><a href="{% url 'entities:location_list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a></div>
+    <div class="card"><div class="card-header"><i class="bi bi-geo-alt me-2 text-cyan"></i>{{ title }}</div>
+    <div class="card-body"><form method="post">{% csrf_token %}
+        <div class="row g-3">
+            <div class="col-12"><label class="form-label">Location Name <span class="text-danger">*</span></label>{{ form.location_name }}</div>
+            <div class="col-12"><label class="form-label">Address</label>{{ form.address }}</div>
+            <div class="col-md-6"><label class="form-label">City <span class="text-danger">*</span></label>{{ form.city }}</div>
+            <div class="col-md-6"><label class="form-label">State <span class="text-danger">*</span></label>{{ form.state }}</div>
+            <div class="col-12"><label class="form-label">Related Cases</label><div class="text-muted-custom small mb-1">Hold Ctrl/Cmd to select multiple</div>{{ form.related_cases }}</div>
+        </div>
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-cyan px-4"><i class="bi bi-check-circle me-1"></i>{{ action }} Location</button>
+            <a href="{% url 'entities:location_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form></div></div>
+</div></div>
+{% endblock %}

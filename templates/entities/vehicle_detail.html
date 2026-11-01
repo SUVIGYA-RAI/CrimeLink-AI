@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ vehicle.registration_number }} - CrimeLink AI{% endblock %}
+{% block page_title %}Vehicle Detail{% endblock %}
+{% block content %}
+<div class="d-flex gap-2 mb-3">
+    <a href="{% url 'entities:vehicle_list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+    <a href="{% url 'entities:vehicle_edit' vehicle.pk %}" class="btn btn-sm btn-primary"><i class="bi bi-pencil me-1"></i>Edit</a>
+    <a href="{% url 'entities:vehicle_delete' vehicle.pk %}" class="btn btn-sm btn-outline-danger ms-auto"><i class="bi bi-trash me-1"></i>Delete</a>
+</div>
+<div class="row justify-content-center"><div class="col-md-6">
+    <div class="card">
+        <div class="card-header"><i class="bi bi-car-front-fill me-2 text-cyan"></i>{{ vehicle.registration_number }}</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-6"><div class="detail-label">Type</div><div class="detail-value">{{ vehicle.get_vehicle_type_display }}</div></div>
+                <div class="col-6"><div class="detail-label">Model</div><div class="detail-value">{{ vehicle.model_name }}</div></div>
+                <div class="col-6"><div class="detail-label">Color</div><div class="detail-value">{{ vehicle.color }}</div></div>
+                <div class="col-6"><div class="detail-label">Date Added</div><div class="detail-value">{{ vehicle.date_added|date:"N j, Y" }}</div></div>
+                <div class="col-12"><div class="detail-label">Owner</div>
+                    <div class="detail-value">{% if vehicle.owner %}<a href="{% url 'entities:person_detail' vehicle.owner.pk %}">{{ vehicle.owner.full_name }}</a>{% else %}Unknown{% endif %}</div>
+                </div>
+                <div class="col-12"><div class="detail-label">Related Case</div>
+                    <div class="detail-value">{% if vehicle.related_case %}<a href="{% url 'cases:case_detail' vehicle.related_case.pk %}">{{ vehicle.related_case.case_number }} - {{ vehicle.related_case.title }}</a>{% else %}-{% endif %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Phone Record Detail - CrimeLink AI{% endblock %}
+{% block page_title %}Phone Record Detail{% endblock %}
+{% block content %}
+<div class="d-flex gap-2 mb-3">
+    <a href="{% url 'entities:phone_record_list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+    <a href="{% url 'entities:phone_record_edit' record.pk %}" class="btn btn-sm btn-primary"><i class="bi bi-pencil me-1"></i>Edit</a>
+    <a href="{% url 'entities:phone_record_delete' record.pk %}" class="btn btn-sm btn-outline-danger ms-auto"><i class="bi bi-trash me-1"></i>Delete</a>
+</div>
+<div class="row justify-content-center"><div class="col-md-6">
+    <div class="card"><div class="card-header"><i class="bi bi-telephone-fill me-2 text-cyan"></i>Call Record</div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-6"><div class="detail-label">Caller Number</div><div class="detail-value">{{ record.caller_number }}</div></div>
+            <div class="col-6"><div class="detail-label">Receiver Number</div><div class="detail-value">{{ record.receiver_number }}</div></div>
+            <div class="col-6"><div class="detail-label">Call Date</div><div class="detail-value">{{ record.call_date }}</div></div>
+            <div class="col-6"><div class="detail-label">Call Time</div><div class="detail-value">{{ record.call_time }}</div></div>
+            <div class="col-6"><div class="detail-label">Duration</div><div class="detail-value">{{ record.get_duration_display }}</div></div>
+            <div class="col-12"><div class="detail-label">Related Case</div>
+                <div class="detail-value"><a href="{% url 'cases:case_detail' record.related_case.pk %}">{{ record.related_case.case_number }} - {{ record.related_case.title }}</a></div>
+            </div>
+            <div class="col-12"><div class="detail-label">Record Added</div><div class="detail-value">{{ record.date_added|date:"N j, Y H:i" }}</div></div>
+        </div>
+    </div></div>
+</div></div>
+{% endblock %}

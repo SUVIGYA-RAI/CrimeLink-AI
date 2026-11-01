@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - CrimeLink AI{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Profile Info Card -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center py-4">
+                <div class="user-avatar mx-auto mb-3"
+                     style="width:72px;height:72px;font-size:26px;border-radius:50%;">
+                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                </div>
+                <h5 class="mb-1">{{ user.get_full_name|default:user.username }}</h5>
+                <p class="text-muted-custom mb-2">@{{ user.username }}</p>
+                <span class="badge {% if profile.role == 'admin' %}badge-open{% else %}badge-investigating{% endif %}">
+                    {{ profile.role|capfirst }}
+                </span>
+
+                <hr style="border-color:var(--border-color);" class="my-3">
+                <div class="text-start">
+                    <div class="detail-label mb-1">Email</div>
+                    <div class="detail-value mb-3">{{ user.email|default:"Not set" }}</div>
+                    <div class="detail-label mb-1">Department</div>
+                    <div class="detail-value mb-3">{{ profile.department|default:"Not set" }}</div>
+                    <div class="detail-label mb-1">Badge Number</div>
+                    <div class="detail-value mb-3">{{ profile.badge_number|default:"Not set" }}</div>
+                    <div class="detail-label mb-1">Phone</div>
+                    <div class="detail-value mb-3">{{ profile.phone_number|default:"Not set" }}</div>
+                    <div class="detail-label mb-1">Member Since</div>
+                    <div class="detail-value">{{ user.date_joined|date:"N j, Y" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Form Card -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-pencil-square text-cyan"></i> Update Profile
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">First Name</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Last Name</label>
+                            {{ form.last_name }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Email</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Phone Number</label>
+                            {{ form.phone_number }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Badge Number</label>
+                            {{ form.badge_number }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Department</label>
+                            {{ form.department }}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">
+                        <i class="bi bi-check-circle me-1"></i>Save Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card mt-3">
+            <div class="card-body d-flex gap-2">
+                <a href="{% url 'dashboard:home' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-grid me-1"></i>Dashboard
+                </a>
+                <a href="/admin/" class="btn btn-outline-secondary btn-sm" target="_blank">
+                    <i class="bi bi-gear me-1"></i>Admin Panel
+                </a>
+                <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-outline-danger ms-auto">
+                    <i class="bi bi-box-arrow-left me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

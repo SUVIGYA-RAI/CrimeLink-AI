@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Organizations - CrimeLink AI{% endblock %}
+{% block page_title %}Organizations{% endblock %}
+{% block content %}
+<div class="card mb-3"><div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-5"><input type="text" name="search" value="{{ search_query }}" class="form-control form-control-sm search-bar" placeholder="Search by name..."></div>
+        <div class="col-md-3"><select name="org_type" class="form-select form-select-sm">
+            <option value="">All Types</option>
+            {% for val,label in type_choices %}<option value="{{ val }}" {% if type_filter == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select></div>
+        <div class="col-md-2"><button type="submit" class="btn btn-primary btn-sm w-100">Filter</button></div>
+        <div class="col-md-2">{% if search_query or type_filter %}<a href="{% url 'entities:organization_list' %}" class="btn btn-outline-secondary btn-sm w-100">Clear</a>{% endif %}</div>
+    </form>
+</div></div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted-custom">{{ total_count }} organization{{ total_count|pluralize }} found</span>
+    <a href="{% url 'entities:organization_create' %}" class="btn btn-cyan btn-sm"><i class="bi bi-plus-circle me-1"></i>Add Organization</a>
+</div>
+<div class="card"><div class="card-body p-0">
+    {% if organizations %}
+    <div class="table-responsive"><table class="table mb-0">
+        <thead><tr><th>Name</th><th>Type</th><th>Address</th><th>Cases</th><th>Added</th><th>Actions</th></tr></thead>
+        <tbody>{% for org in organizations %}<tr>
+            <td><a href="{% url 'entities:organization_detail' org.pk %}">{{ org.name }}</a></td>
+            <td><span class="badge badge-investigating">{{ org.get_organization_type_display }}</span></td>
+            <td class="text-muted-custom">{{ org.address|truncatechars:40|default:"-" }}</td>
+            <td>{{ org.related_cases.count }}</td>
+            <td class="text-muted-custom">{{ org.date_added|date:"M j, Y" }}</td>
+            <td><div class="d-flex gap-1">
+                <a href="{% url 'entities:organization_detail' org.pk %}" class="btn btn-sm btn-outline-secondary py-0"><i class="bi bi-eye"></i></a>
+                <a href="{% url 'entities:organization_edit' org.pk %}" class="btn btn-sm btn-outline-secondary py-0"><i class="bi bi-pencil"></i></a>
+                <a href="{% url 'entities:organization_delete' org.pk %}" class="btn btn-sm btn-outline-danger py-0"><i class="bi bi-trash"></i></a>
+            </div></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<div class="empty-state"><i class="bi bi-building d-block"></i><h5>No organizations found</h5><a href="{% url 'entities:organization_create' %}" class="btn btn-cyan btn-sm mt-2">Add Organization</a></div>{% endif %}
+</div></div>
+{% endblock %}

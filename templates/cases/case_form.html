@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - CrimeLink AI{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex gap-2 mb-3">
+            <a href="{% url 'cases:case_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Cases
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="bi bi-folder-plus me-2 text-cyan"></i>{{ title }}</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Case Number <span class="text-danger">*</span></label>
+                            {{ form.case_number }}
+                            {% if form.case_number.errors %}
+                                <div class="text-danger small mt-1">{{ form.case_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Case Type</label>
+                            {{ form.case_type }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Title <span class="text-danger">*</span></label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            {{ form.description }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Location</label>
+                            {{ form.location }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Priority</label>
+                            {{ form.priority }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-cyan px-4">
+                            <i class="bi bi-check-circle me-1"></i>{{ action }} Case
+                        </button>
+                        <a href="{% url 'cases:case_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

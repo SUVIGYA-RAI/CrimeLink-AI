@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Register - CrimeLink AI{% endblock %}
+
+{% block auth_content %}
+<div class="auth-page" style="padding: 30px 0;">
+    <div class="auth-card" style="max-width: 520px;">
+        <div class="auth-logo"><i class="bi bi-person-plus-fill"></i></div>
+        <h1 class="auth-title">Register Account</h1>
+        <p class="auth-subtitle mb-4">Create a new investigator account</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="row g-3">
+                <!-- Basic Info -->
+                <div class="col-6">
+                    <label class="form-label">First Name</label>
+                    {{ form.first_name }}
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Last Name</label>
+                    {{ form.last_name }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Username <span class="text-danger">*</span></label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Email</label>
+                    {{ form.email }}
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Password <span class="text-danger">*</span></label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-12"><hr style="border-color:var(--border-color);"></div>
+
+                <!-- Profile Info -->
+                <div class="col-12">
+                    <label class="form-label">Role <span class="text-danger">*</span></label>
+                    {{ form.role }}
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Phone Number</label>
+                    {{ form.phone_number }}
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Badge Number</label>
+                    {{ form.badge_number }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Department</label>
+                    {{ form.department }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-cyan w-100 py-2 mt-4">
+                <i class="bi bi-person-check me-2"></i>Create Account
+            </button>
+        </form>
+
+        <hr class="my-3" style="border-color:var(--border-color);">
+        <p class="text-center text-muted-custom small mb-0">
+            Already have an account?
+            <a href="{% url 'accounts:login' %}" class="text-cyan">Login here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

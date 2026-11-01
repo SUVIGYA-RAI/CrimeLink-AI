@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Locations - CrimeLink AI{% endblock %}
+{% block page_title %}Locations{% endblock %}
+{% block content %}
+<div class="card mb-3"><div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-6"><input type="text" name="search" value="{{ search_query }}" class="form-control form-control-sm search-bar" placeholder="Search by name or city..."></div>
+        <div class="col-md-2"><button type="submit" class="btn btn-primary btn-sm w-100">Search</button></div>
+        <div class="col-md-2">{% if search_query %}<a href="{% url 'entities:location_list' %}" class="btn btn-outline-secondary btn-sm w-100">Clear</a>{% endif %}</div>
+    </form>
+</div></div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted-custom">{{ total_count }} location{{ total_count|pluralize }} found</span>
+    <a href="{% url 'entities:location_create' %}" class="btn btn-cyan btn-sm"><i class="bi bi-plus-circle me-1"></i>Add Location</a>
+</div>
+<div class="card"><div class="card-body p-0">
+    {% if locations %}
+    <div class="table-responsive"><table class="table mb-0">
+        <thead><tr><th>Name</th><th>City</th><th>State</th><th>Cases</th><th>Added</th><th>Actions</th></tr></thead>
+        <tbody>{% for loc in locations %}<tr>
+            <td><a href="{% url 'entities:location_detail' loc.pk %}">{{ loc.location_name }}</a></td>
+            <td>{{ loc.city }}</td>
+            <td>{{ loc.state }}</td>
+            <td>{{ loc.related_cases.count }}</td>
+            <td class="text-muted-custom">{{ loc.date_added|date:"M j, Y" }}</td>
+            <td><div class="d-flex gap-1">
+                <a href="{% url 'entities:location_detail' loc.pk %}" class="btn btn-sm btn-outline-secondary py-0"><i class="bi bi-eye"></i></a>
+                <a href="{% url 'entities:location_edit' loc.pk %}" class="btn btn-sm btn-outline-secondary py-0"><i class="bi bi-pencil"></i></a>
+                <a href="{% url 'entities:location_delete' loc.pk %}" class="btn btn-sm btn-outline-danger py-0"><i class="bi bi-trash"></i></a>
+            </div></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<div class="empty-state"><i class="bi bi-geo-alt-fill d-block"></i><h5>No locations found</h5><a href="{% url 'entities:location_create' %}" class="btn btn-cyan btn-sm mt-2">Add Location</a></div>{% endif %}
+</div></div>
+{% endblock %}

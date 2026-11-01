@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - CrimeLink AI{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-6">
+    <div class="d-flex gap-2 mb-3"><a href="{% url 'entities:vehicle_list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a></div>
+    <div class="card">
+        <div class="card-header"><i class="bi bi-car-front me-2 text-cyan"></i>{{ title }}</div>
+        <div class="card-body">
+            <form method="post">{% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-12"><label class="form-label">Registration Number <span class="text-danger">*</span></label>{{ form.registration_number }}{% if form.registration_number.errors %}<div class="text-danger small mt-1">{{ form.registration_number.errors.0 }}</div>{% endif %}</div>
+                    <div class="col-md-6"><label class="form-label">Vehicle Type</label>{{ form.vehicle_type }}</div>
+                    <div class="col-md-6"><label class="form-label">Model Name</label>{{ form.model_name }}</div>
+                    <div class="col-12"><label class="form-label">Color</label>{{ form.color }}</div>
+                    <div class="col-12"><label class="form-label">Owner (Person)</label>{{ form.owner }}</div>
+                    <div class="col-12"><label class="form-label">Related Case</label>{{ form.related_case }}</div>
+                </div>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-cyan px-4"><i class="bi bi-check-circle me-1"></i>{{ action }} Vehicle</button>
+                    <a href="{% url 'entities:vehicle_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div></div>
+{% endblock %}

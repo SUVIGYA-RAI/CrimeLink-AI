@@ -281,8 +281,10 @@ a:hover {
 
 /* ============ TABLES ============ */
 .table {
+    --bs-table-bg: #172235;
     color: var(--text-main);
     border-color: var(--border-color);
+
 }
 
 .table thead th {
@@ -299,6 +301,7 @@ a:hover {
 .table tbody tr {
     border-bottom: 1px solid rgba(255,255,255,0.04);
     transition: background-color 0.15s;
+    
 }
 
 .table tbody tr:hover {

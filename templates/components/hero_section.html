@@ -1,0 +1,609 @@
+{% comment %}
+CrimeLink AI - Pure Visual Abstract Intelligence Network
+Features:
+- 100% Visual Network Visualization (No text, no cards, no headings)
+- Curved glowing cyan/blue connecting lines with animated packet pulses
+- Asymmetric profile & entity intelligence nodes with subtle floating animation
+- Soft blue/cyan ambient glows and telemetry grid
+- Adaptive height based on existing Django queryset count:
+  * 0–5 records: 260px (hero-tier-1)
+  * 6–15 records: 190px (hero-tier-2)
+  * 16–30 records: 130px (hero-tier-3)
+  * >30 records: 80px (hero-tier-4)
+{% endcomment %}
+
+<style>
+.adaptive-hero-visual {
+    --hero-accent: #22D3EE;
+    --hero-secondary: #3B82F6;
+    --hero-glow: rgba(34, 211, 238, 0.28);
+    --hero-line: rgba(34, 211, 238, 0.35);
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 50%, #0d1728 0%, #090e1a 100%);
+    border: 1px solid rgba(34, 211, 238, 0.2);
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.adaptive-hero-visual.theme-cases { --hero-accent: #22D3EE; --hero-secondary: #3B82F6; --hero-glow: rgba(34, 211, 238, 0.28); --hero-line: rgba(34, 211, 238, 0.35); border-color: rgba(34, 211, 238, 0.22); }
+.adaptive-hero-visual.theme-persons { --hero-accent: #38BDF8; --hero-secondary: #0284C7; --hero-glow: rgba(56, 189, 248, 0.28); --hero-line: rgba(56, 189, 248, 0.35); border-color: rgba(56, 189, 248, 0.22); }
+.adaptive-hero-visual.theme-vehicles { --hero-accent: #F59E0B; --hero-secondary: #D97706; --hero-glow: rgba(245, 158, 11, 0.25); --hero-line: rgba(245, 158, 11, 0.35); border-color: rgba(245, 158, 11, 0.22); }
+.adaptive-hero-visual.theme-organizations { --hero-accent: #A855F7; --hero-secondary: #7E22CE; --hero-glow: rgba(168, 85, 247, 0.28); --hero-line: rgba(168, 85, 247, 0.35); border-color: rgba(168, 85, 247, 0.22); }
+.adaptive-hero-visual.theme-locations { --hero-accent: #10B981; --hero-secondary: #059669; --hero-glow: rgba(16, 185, 129, 0.28); --hero-line: rgba(16, 185, 129, 0.35); border-color: rgba(16, 185, 129, 0.22); }
+.adaptive-hero-visual.theme-phones { --hero-accent: #818CF8; --hero-secondary: #4F46E5; --hero-glow: rgba(129, 140, 248, 0.28); --hero-line: rgba(129, 140, 248, 0.35); border-color: rgba(129, 140, 248, 0.22); }
+
+.adaptive-hero-visual.hero-tier-1 { height: 260px !important; }
+.adaptive-hero-visual.hero-tier-2 { height: 190px !important; }
+.adaptive-hero-visual.hero-tier-3 { height: 130px !important; }
+.adaptive-hero-visual.hero-tier-4 { height: 80px !important; }
+
+.adaptive-hero-visual .hero-ambient-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 650px 180px at 50% 50%, var(--hero-glow) 0%, rgba(15, 23, 42, 0) 75%);
+    pointer-events: none;
+    z-index: 1;
+    animation: ambientBreathing 6s ease-in-out infinite alternate;
+}
+.adaptive-hero-visual .hero-grid-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 1;
+}
+.adaptive-hero-visual .hero-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, transparent 60%, rgba(9, 14, 26, 0.8) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+.adaptive-hero-visual .intelligence-network-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: relative;
+    z-index: 2;
+    overflow: visible;
+}
+.adaptive-hero-visual .net-curve {
+    fill: none;
+    stroke: var(--hero-line);
+    stroke-width: 1.3px;
+    transition: stroke 0.3s ease;
+}
+.adaptive-hero-visual .net-curve-sec {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 0.9px;
+    stroke-dasharray: 4 3;
+}
+.adaptive-hero-visual .net-core-artery {
+    stroke-width: 1.8px;
+    stroke: var(--hero-accent);
+    opacity: 0.8;
+}
+.adaptive-hero-visual .net-pulse {
+    fill: none;
+    stroke: var(--hero-accent);
+    stroke-width: 2.4px;
+    stroke-linecap: round;
+    stroke-dasharray: 14 180;
+    filter: drop-shadow(0 0 5px var(--hero-accent));
+}
+.adaptive-hero-visual .pulse-speed-1 { animation: pulseFlow 3.8s linear infinite; }
+.adaptive-hero-visual .pulse-speed-2 { animation: pulseFlow 4.6s linear infinite; animation-delay: -1.5s; }
+.adaptive-hero-visual .pulse-speed-3 { animation: pulseFlow 5.4s linear infinite; animation-delay: -3s; }
+
+.adaptive-hero-visual .node-circle {
+    fill: url(#nodeBodyGrad);
+    stroke: var(--hero-accent);
+    stroke-width: 1.6px;
+    cursor: pointer;
+    transition: transform 0.25s ease, filter 0.25s ease, stroke-width 0.25s ease;
+}
+.adaptive-hero-visual .node-circle:hover {
+    filter: drop-shadow(0 0 10px var(--hero-accent));
+    stroke-width: 2.2px;
+}
+.adaptive-hero-visual .node-core-1 {
+    fill: url(#nodeBodyCore);
+    stroke: var(--hero-accent);
+    stroke-width: 2.2px;
+    filter: drop-shadow(0 0 12px var(--hero-glow));
+}
+.adaptive-hero-visual .node-core-2 {
+    fill: url(#nodeBodyCore);
+    stroke: var(--hero-secondary);
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4));
+}
+.adaptive-hero-visual .node-halo-pulse {
+    animation: haloPulseAnim 3.2s ease-in-out infinite alternate;
+    transform-origin: center;
+    pointer-events: none;
+}
+.adaptive-hero-visual .node-halo-ring {
+    fill: none;
+    stroke: var(--hero-accent);
+    stroke-width: 1.2px;
+    stroke-dasharray: 4 2;
+    opacity: 0.45;
+    animation: ringSpin 24s linear infinite;
+    transform-origin: center;
+    pointer-events: none;
+}
+.adaptive-hero-visual .node-icon-svg {
+    fill: #CBD5E1;
+    pointer-events: none;
+    transition: fill 0.2s ease;
+}
+.adaptive-hero-visual .node-icon-svg-core {
+    fill: #FFFFFF;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
+    pointer-events: none;
+}
+.adaptive-hero-visual .node-circle:hover + .node-icon-svg,
+.adaptive-hero-visual .node-circle:hover + .node-icon-svg-core {
+    fill: var(--hero-accent);
+}
+
+.adaptive-hero-visual .float-group-1 { animation: float1 5.5s ease-in-out infinite alternate; }
+.adaptive-hero-visual .float-group-2 { animation: float2 6.8s ease-in-out infinite alternate; }
+.adaptive-hero-visual .float-group-3 { animation: float3 4.8s ease-in-out infinite alternate; }
+.adaptive-hero-visual .float-group-core-1 { animation: floatCore1 7s ease-in-out infinite alternate; }
+.adaptive-hero-visual .float-group-core-2 { animation: floatCore2 6s ease-in-out infinite alternate; }
+
+@keyframes ambientBreathing { 0% { opacity: 0.3; transform: scale(0.96); } 100% { opacity: 0.6; transform: scale(1.06); } }
+@keyframes pulseFlow { from { stroke-dashoffset: 240; } to { stroke-dashoffset: -240; } }
+@keyframes haloPulseAnim { 0% { transform: scale(0.88); opacity: 0.6; } 100% { transform: scale(1.15); opacity: 0.95; } }
+@keyframes ringSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes float1 { 0% { transform: translateY(0); } 100% { transform: translateY(-5px); } }
+@keyframes float2 { 0% { transform: translateY(0); } 100% { transform: translateY(6px); } }
+@keyframes float3 { 0% { transform: translateY(0); } 100% { transform: translateY(-4px); } }
+@keyframes floatCore1 { 0% { transform: translateY(0); } 100% { transform: translateY(-3px); } }
+@keyframes floatCore2 { 0% { transform: translateY(0); } 100% { transform: translateY(3.5px); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .adaptive-hero-visual .hero-ambient-glow,
+    .adaptive-hero-visual .net-pulse,
+    .adaptive-hero-visual .node-halo-pulse,
+    .adaptive-hero-visual .node-halo-ring,
+    .adaptive-hero-visual .float-group-1,
+    .adaptive-hero-visual .float-group-2,
+    .adaptive-hero-visual .float-group-3,
+    .adaptive-hero-visual .float-group-core-1,
+    .adaptive-hero-visual .float-group-core-2 {
+        animation: none !important;
+    }
+}
+</style>
+
+<div class="adaptive-hero-visual {% if total_count <= 5 %}hero-tier-1{% elif total_count <= 15 %}hero-tier-2{% elif total_count <= 30 %}hero-tier-3{% else %}hero-tier-4{% endif %} theme-{{ page_type }}"
+     data-total-count="{{ total_count }}"
+     style="height: {% if total_count <= 5 %}260px{% elif total_count <= 15 %}190px{% elif total_count <= 30 %}130px{% else %}80px{% endif %};">
+
+    <!-- Ambient Background Effects -->
+    <div class="hero-ambient-glow"></div>
+    <div class="hero-grid-pattern"></div>
+    <div class="hero-vignette"></div>
+
+    <!-- Embedded Scalable Vector Intelligence Network -->
+    <svg class="intelligence-network-svg" preserveAspectRatio="xMidYMid meet"
+         {% if total_count <= 5 %}viewBox="0 0 1000 260"
+         {% elif total_count <= 15 %}viewBox="0 0 1000 190"
+         {% elif total_count <= 30 %}viewBox="0 0 1000 130"
+         {% else %}viewBox="0 0 1000 80"{% endif %}>
+
+        <defs>
+            <!-- Core Blue/Cyan Halos -->
+            <radialGradient id="haloCoreCyan" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#22D3EE" stop-opacity="0.85"/>
+                <stop offset="50%" stop-color="#0284C7" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#0F172A" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="haloCoreBlue" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.8"/>
+                <stop offset="55%" stop-color="#1E40AF" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#0F172A" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="nodeBodyGrad" cx="30%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#1E293B"/>
+                <stop offset="100%" stop-color="#090E17"/>
+            </radialGradient>
+            <radialGradient id="nodeBodyCore" cx="30%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#0E2A47"/>
+                <stop offset="100%" stop-color="#05101E"/>
+            </radialGradient>
+
+            <!-- Line Glow Filter -->
+            <filter id="cyanGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+
+            <!-- Entity Specific SVG Icons (16x16 standard) -->
+            {% if page_type == 'persons' %}
+            <symbol id="icon-primary" viewBox="0 0 16 16">
+                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+            </symbol>
+            <symbol id="icon-secondary" viewBox="0 0 16 16">
+                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm4.5 0a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zM8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6m5 2.755C12.146 12.825 10.623 12 8 12s-4.146.826-5 1.755V14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1z"/>
+            </symbol>
+            <symbol id="icon-satellite-1" viewBox="0 0 16 16">
+                <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+            </symbol>
+            <symbol id="icon-satellite-2" viewBox="0 0 16 16">
+                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4"/>
+            </symbol>
+
+            {% elif page_type == 'cases' %}
+            <symbol id="icon-primary" viewBox="0 0 16 16">
+                <path d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.464 9.99a11.8 11.8 0 0 0 4.395 3.32.75.75 0 0 0 .62 0 11.8 11.8 0 0 0 4.395-3.32c1.677-2.195 3.06-5.513 2.464-9.99a1.54 1.54 0 0 0-1.044-1.263 63 63 0 0 0-2.887-.87C9.843.266 8.69 0 8 0m2.146 5.146a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793z"/>
+            </symbol>
+            <symbol id="icon-secondary" viewBox="0 0 16 16">
+                <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v.64c.57.265.94.876.856 1.546l-.64 5.124A2.5 2.5 0 0 1 12.733 15H3.266a2.5 2.5 0 0 1-2.481-2.19l-.64-5.124A1.5 1.5 0 0 1 1 6.14zM2 6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5a.5.5 0 0 0-.5.5zm-.367 1a.5.5 0 0 0-.496.562l.64 5.124A1.5 1.5 0 0 0 3.266 14h9.468a1.5 1.5 0 0 0 1.489-1.314l.64-5.124A.5.5 0 0 0 14.366 7z"/>
+            </symbol>
+            <symbol id="icon-satellite-1" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+            </symbol>
+            <symbol id="icon-satellite-2" viewBox="0 0 16 16">
+                <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/>
+            </symbol>
+
+            {% elif page_type == 'vehicles' %}
+            <symbol id="icon-primary" viewBox="0 0 16 16">
+                <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.315.38.396l.758.362A1 1 0 0 1 16 7.03v5.47a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5V12H4v.5A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5V7.03a1 1 0 0 1 .59-.91l.758-.361a1 1 0 0 0 .38-.396l.792-1.848zM4.14 5h7.72l-.5-1.166A1 1 0 0 0 10.44 3H5.56a1 1 0 0 0-.92.834zM2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2m11 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+            </symbol>
+            <symbol id="icon-secondary" viewBox="0 0 16 16">
+                <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5zm1.294 7.456A2 2 0 0 1 4.732 11h5.536a2 2 0 0 1 .732.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456M12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12z"/>
+            </symbol>
+            <symbol id="icon-satellite-1" viewBox="0 0 16 16">
+                <path d="M8 2a.5.5 0 0 1 .5.5V4a.5.5 0 0 1-1 0V2.5A.5.5 0 0 1 8 2M3.732 3.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 8a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 8m10.657-4.268a.5.5 0 0 1 0 .707l-.914.915a.5.5 0 1 1-.707-.708l.914-.914a.5.5 0 0 1 .707 0M12 8a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12.5A.5.5 0 0 1 12 8M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 1A5 5 0 1 1 8 3a5 5 0 0 1 0 10m-.5-3.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"/>
+            </symbol>
+            <symbol id="icon-satellite-2" viewBox="0 0 16 16">
+                <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+            </symbol>
+
+            {% elif page_type == 'organizations' %}
+            <symbol id="icon-primary" viewBox="0 0 16 16">
+                <path d="M4 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zM4 5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zM4 8.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zM2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3z"/>
+            </symbol>
+            <symbol id="icon-secondary" viewBox="0 0 16 16">
+                <path d="M8 .95 14.61 4h.89a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v7a.5.5 0 0 1 .485.379l.5 2A.5.5 0 0 1 15.5 17H.5a.5.5 0 0 1-.485-.621l.5-2A.5.5 0 0 1 1 14V7H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 4h.89zM2 7v7h12V7zm1 1h2v5H3zm4 0h2v5H7zm4 0h2v5h-2z"/>
+            </symbol>
+            <symbol id="icon-satellite-1" viewBox="0 0 16 16">
+                <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855A8 8 0 0 0 5.145 4H7.5zM4.09 4a9.3 9.3 0 0 1 .64-1.539 7 7 0 0 1 .997-.93A7 7 0 0 0 2.062 4zm6.98 0c-.26-.816-.628-1.528-1.07-2.122A7 7 0 0 1 13.938 4zM7.5 5H4.66a8 8 0 0 0-.154 2H7.5zm0 3H4.506c.032.68.1 1.348.204 2H7.5zm0 3H4.856c.277.784.66 1.482 1.127 2.036A8 8 0 0 0 7.5 13.916zm1 2.916a8 8 0 0 0 1.517-.88 9.3 9.3 0 0 0 1.127-2.036H8.5zm0-3.916h2.994c.104-.652.172-1.32.204-2H8.5zm0-3h3.048a8 8 0 0 0-.154-2H8.5zm3.438-1a7 7 0 0 1 1.93 2h-2.12c-.08-.707-.22-1.385-.418-2zm-.418 5c.198-.615.338-1.293.418-2h2.12a7 7 0 0 1-1.93 2z"/>
+            </symbol>
+            <symbol id="icon-satellite-2" viewBox="0 0 16 16">
+                <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm3 1a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zM1 4.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5z"/>
+            </symbol>
+
+            {% elif page_type == 'locations' %}
+            <symbol id="icon-primary" viewBox="0 0 16 16">
+                <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+            </symbol>
+            <symbol id="icon-secondary" viewBox="0 0 16 16">
+                <path d="M8 0a.5.5 0 0 1 .5.5v.518A7 7 0 0 1 14.982 7.5h.518a.5.5 0 0 1 0 1h-.518A7 7 0 0 1 8.5 14.982v.518a.5.5 0 0 1-1 0v-.518A7 7 0 0 1 1.018 8.5H.5a.5.5 0 0 1 0-1h.518A7 7 0 0 1 7.5 1.018V.5A.5.5 0 0 1 8 0m-.5 2.02A6 6 0 0 0 2.02 7.5h1.005A5 5 0 0 1 7.5 3.025zm1 0v1.005A5 5 0 0 1 12.975 7.5h1.005A6 6 0 0 0 8.5 2.02m0 11.96v-1.005a5 5 0 0 1-4.475-4.475H2.02A6 6 0 0 0 8.5 13.98m-1 0A6 6 0 0 0 13.98 8.5h-1.005a5 5 0 0 1-4.475 4.475zM8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5m0 1a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3"/>
+            </symbol>
+            <symbol id="icon-satellite-1" viewBox="0 0 16 16">
+                <path d="M8 16.016a7.5 7.5 0 0 0 1.962-14.74A1 1 0 0 0 9 0H7a1 1 0 0 0-.962 1.276A7.5 7.5 0 0 0 8 16.016m6.5-7.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0m-6.908-2.54 1.848 3.695a.5.5 0 0 0 .61.267l3.696-1.848a.5.5 0 0 0 .267-.61L12.167 3.79a.5.5 0 0 0-.61-.267L7.86 5.37a.5.5 0 0 0-.268.61z"/>
+            </symbol>
+            <symbol id="icon-satellite-2" viewBox="0 0 16 16">
+                <path d="M3.1 11.2a.5.5 0 0 1 .4-.2H6a.5.5 0 0 1 0 1H3.75L1.5 15h13l-2.25-3H10a.5.5 0 0 1 0-1h2.5a.5.5 0 0 1 .4.2l3 4a.5.5 0 0 1-.4.8H.5a.5.5 0 0 1-.4-.8z M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6m0 8a5 5 0 0 1-5-5 5 5 0 0 1 10 0 5 5 0 0 1-5 5"/>
+            </symbol>
+
+            {% elif page_type == 'phones' %}
+            <symbol id="icon-primary" viewBox="0 0 16 16">
+                <path d="M3.05 3.05a7 7 0 0 0 0 9.9.5.5 0 0 1-.707.707 8 8 0 0 1 0-11.314.5.5 0 0 1 .707.707m2.122 2.122a4 4 0 0 0 0 5.656.5.5 0 1 1-.708.708 5 5 0 0 1 0-7.072.5.5 0 0 1 .708.708m5.656-.708a.5.5 0 0 1 .708 0 5 5 0 0 1 0 7.072.5.5 0 1 1-.708-.708 4 4 0 0 0 0-5.656.5.5 0 0 1 0-.708m2.122-2.12a.5.5 0 0 1 .707 0 8 8 0 0 1 0 11.313.5.5 0 0 1-.707-.707 7 7 0 0 0 0-9.9.5.5 0 0 1 0-.707zM6 8a2 2 0 1 1 2.5 1.937V15.5a.5.5 0 0 1-1 0V9.937A2 2 0 0 1 6 8"/>
+            </symbol>
+            <symbol id="icon-secondary" viewBox="0 0 16 16">
+                <path d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"/>
+            </symbol>
+            <symbol id="icon-satellite-1" viewBox="0 0 16 16">
+                <path d="M0 8.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m3-3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3-2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v10a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5"/>
+            </symbol>
+            <symbol id="icon-satellite-2" viewBox="0 0 16 16">
+                <path d="M15.384 6.115a.485.485 0 0 0-.047-.736A12.44 12.44 0 0 0 8 3C5.259 3 2.723 3.882.663 5.379a.485.485 0 0 0-.048.736.52.52 0 0 0 .668.05A11.45 11.45 0 0 1 8 4c2.507 0 4.827.802 6.716 2.164.205.148.49.13.668-.049"/>
+            </symbol>
+            {% endif %}
+        </defs>
+
+        <!-- ========================================================
+             TIER 1 (0–5 Records): Height 260px (viewBox="0 0 1000 260")
+             Full Asymmetric Constellation of 14 Nodes + Multi-Artery Pulses
+             ======================================================== -->
+        {% if total_count <= 5 %}
+        <g class="network-tier-layer tier-1-layer">
+            <!-- Background Secondary Connections -->
+            <path class="net-curve-sec" d="M 60,130 Q 180,40 310,185"/>
+            <path class="net-curve-sec" d="M 150,65 Q 360,15 560,115"/>
+            <path class="net-curve-sec" d="M 450,130 Q 640,245 840,195"/>
+            <path class="net-curve-sec" d="M 510,50 Q 720,25 940,130"/>
+
+            <!-- Primary Curved Glowing Connection Lines -->
+            <path id="p1_1" class="net-curve" d="M 60,130 Q 100,85 150,65"/>
+            <path id="p1_2" class="net-curve" d="M 60,130 Q 110,170 170,195"/>
+            <path id="p1_3" class="net-curve" d="M 150,65 Q 220,60 290,80"/>
+            <path id="p1_4" class="net-curve" d="M 170,195 Q 240,200 310,185"/>
+            <path id="p1_5" class="net-curve" d="M 150,65 Q 230,130 310,185"/>
+            <path id="p1_6" class="net-curve" d="M 290,80 Q 370,95 450,130"/>
+            <path id="p1_7" class="net-curve" d="M 310,185 Q 380,165 450,130"/>
+            <path id="p1_8" class="net-curve" d="M 290,80 Q 400,55 510,50"/>
+            <path id="p1_9" class="net-curve net-core-artery" d="M 450,130 Q 505,115 560,115"/>
+            <path id="p1_10" class="net-curve" d="M 450,130 Q 465,180 490,220"/>
+            <path id="p1_11" class="net-curve" d="M 560,115 Q 530,75 510,50"/>
+            <path id="p1_12" class="net-curve" d="M 560,115 Q 630,90 700,85"/>
+            <path id="p1_13" class="net-curve" d="M 560,115 Q 625,155 680,180"/>
+            <path id="p1_14" class="net-curve" d="M 490,220 Q 590,210 680,180"/>
+            <path id="p1_15" class="net-curve" d="M 510,50 Q 610,60 700,85"/>
+            <path id="p1_16" class="net-curve" d="M 700,85 Q 765,70 830,70"/>
+            <path id="p1_17" class="net-curve" d="M 680,180 Q 760,195 840,195"/>
+            <path id="p1_18" class="net-curve" d="M 700,85 Q 770,145 840,195"/>
+            <path id="p1_19" class="net-curve" d="M 830,70 Q 890,95 940,130"/>
+            <path id="p1_20" class="net-curve" d="M 840,195 Q 895,170 940,130"/>
+
+            <!-- Animated Glowing Pulses Streaming along Connections -->
+            <path class="net-pulse pulse-speed-1" d="M 60,130 Q 100,85 150,65 Q 220,60 290,80 Q 370,95 450,130 Q 505,115 560,115"/>
+            <path class="net-pulse pulse-speed-2" d="M 170,195 Q 240,200 310,185 Q 380,165 450,130 Q 505,115 560,115 Q 630,90 700,85 Q 765,70 830,70"/>
+            <path class="net-pulse pulse-speed-3" d="M 290,80 Q 400,55 510,50 Q 610,60 700,85 Q 770,145 840,195 Q 895,170 940,130"/>
+            <path class="net-pulse pulse-speed-1" d="M 560,115 Q 625,155 680,180 Q 760,195 840,195 Q 895,170 940,130"/>
+            <path class="net-pulse pulse-speed-2" d="M 450,130 Q 465,180 490,220 Q 590,210 680,180 Q 625,155 560,115"/>
+
+            <!-- Nodes: Floating Groups & Elements -->
+            <!-- Outer Left Satellite Nodes -->
+            <g class="float-group-1">
+                <circle cx="60" cy="130" r="14" class="node-circle node-sm"/>
+                <use href="#icon-satellite-2" x="53" y="123" width="14" height="14" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-2">
+                <circle cx="150" cy="65" r="16" class="node-circle node-sm"/>
+                <use href="#icon-satellite-1" x="142" y="57" width="16" height="16" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-3">
+                <circle cx="170" cy="195" r="15" class="node-circle node-sm"/>
+                <use href="#icon-satellite-2" x="162" y="187" width="16" height="16" class="node-icon-svg"/>
+            </g>
+
+            <!-- Mid Left Intermediate Nodes -->
+            <g class="float-group-1">
+                <circle cx="290" cy="80" r="20" class="node-circle node-md"/>
+                <use href="#icon-secondary" x="280" y="70" width="20" height="20" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-3">
+                <circle cx="310" cy="185" r="19" class="node-circle node-md"/>
+                <use href="#icon-satellite-1" x="301" y="176" width="18" height="18" class="node-icon-svg"/>
+            </g>
+
+            <!-- Top and Bottom Balance Nodes -->
+            <g class="float-group-2">
+                <circle cx="510" cy="50" r="17" class="node-circle node-md"/>
+                <use href="#icon-secondary" x="501" y="41" width="18" height="18" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-1">
+                <circle cx="490" cy="220" r="16" class="node-circle node-sm"/>
+                <use href="#icon-satellite-2" x="482" y="212" width="16" height="16" class="node-icon-svg"/>
+            </g>
+
+            <!-- PRIMARY CORE NODES (Large Focal Hubs with Soft Blue Glows) -->
+            <g class="float-group-core-1">
+                <!-- Outer Pulsing Halo -->
+                <circle cx="450" cy="130" r="46" fill="url(#haloCoreCyan)" class="node-halo-pulse"/>
+                <circle cx="450" cy="130" r="34" class="node-halo-ring"/>
+                <!-- Node Body -->
+                <circle cx="450" cy="130" r="27" class="node-circle node-core-1"/>
+                <use href="#icon-primary" x="436" y="116" width="28" height="28" class="node-icon-svg-core"/>
+            </g>
+
+            <g class="float-group-core-2">
+                <!-- Secondary Core Halo -->
+                <circle cx="560" cy="115" r="42" fill="url(#haloCoreBlue)" class="node-halo-pulse"/>
+                <circle cx="560" cy="115" r="30" class="node-halo-ring"/>
+                <!-- Node Body -->
+                <circle cx="560" cy="115" r="24" class="node-circle node-core-2"/>
+                <use href="#icon-secondary" x="548" y="103" width="24" height="24" class="node-icon-svg-core"/>
+            </g>
+
+            <!-- Mid Right Intermediate Nodes -->
+            <g class="float-group-2">
+                <circle cx="700" cy="85" r="20" class="node-circle node-md"/>
+                <use href="#icon-secondary" x="690" y="75" width="20" height="20" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-1">
+                <circle cx="680" cy="180" r="19" class="node-circle node-md"/>
+                <use href="#icon-satellite-1" x="671" y="171" width="18" height="18" class="node-icon-svg"/>
+            </g>
+
+            <!-- Outer Right Satellite Nodes -->
+            <g class="float-group-3">
+                <circle cx="830" cy="70" r="16" class="node-circle node-sm"/>
+                <use href="#icon-satellite-1" x="822" y="62" width="16" height="16" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-2">
+                <circle cx="840" cy="195" r="15" class="node-circle node-sm"/>
+                <use href="#icon-satellite-2" x="832" y="187" width="16" height="16" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-1">
+                <circle cx="940" cy="130" r="14" class="node-circle node-sm"/>
+                <use href="#icon-satellite-2" x="933" y="123" width="14" height="14" class="node-icon-svg"/>
+            </g>
+        </g>
+
+        <!-- ========================================================
+             TIER 2 (6–15 Records): Height 190px (viewBox="0 0 1000 190")
+             Balanced Network of 9 Nodes + Reduced Node Sizes
+             ======================================================== -->
+        {% elif total_count <= 15 %}
+        <g class="network-tier-layer tier-2-layer">
+            <!-- Secondary Curves -->
+            <path class="net-curve-sec" d="M 170,95 Q 320,35 510,40"/>
+            <path class="net-curve-sec" d="M 460,95 Q 650,150 830,95"/>
+
+            <!-- Primary Curves -->
+            <path class="net-curve" d="M 170,95 Q 235,65 310,60"/>
+            <path class="net-curve" d="M 170,95 Q 245,125 330,135"/>
+            <path class="net-curve" d="M 310,60 Q 390,75 460,95"/>
+            <path class="net-curve" d="M 330,135 Q 400,120 460,95"/>
+            <path class="net-curve" d="M 310,60 Q 410,42 510,40"/>
+            <path class="net-curve net-core-artery" d="M 460,95 Q 510,85 560,85"/>
+            <path class="net-curve" d="M 560,85 Q 535,55 510,40"/>
+            <path class="net-curve" d="M 560,85 Q 630,70 690,65"/>
+            <path class="net-curve" d="M 560,85 Q 620,115 670,135"/>
+            <path class="net-curve" d="M 690,65 Q 765,75 830,95"/>
+            <path class="net-curve" d="M 670,135 Q 755,120 830,95"/>
+
+            <!-- Animated Pulses -->
+            <path class="net-pulse pulse-speed-1" d="M 170,95 Q 235,65 310,60 Q 390,75 460,95 Q 510,85 560,85 Q 630,70 690,65 Q 765,75 830,95"/>
+            <path class="net-pulse pulse-speed-2" d="M 330,135 Q 400,120 460,95 Q 510,85 560,85 Q 620,115 670,135 Q 755,120 830,95"/>
+            <path class="net-pulse pulse-speed-3" d="M 310,60 Q 410,42 510,40 Q 560,85 690,65"/>
+
+            <!-- Nodes -->
+            <g class="float-group-1">
+                <circle cx="170" cy="95" r="14" class="node-circle node-sm"/>
+                <use href="#icon-satellite-2" x="163" y="88" width="14" height="14" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-2">
+                <circle cx="310" cy="60" r="17" class="node-circle node-md"/>
+                <use href="#icon-secondary" x="302" y="52" width="16" height="16" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-3">
+                <circle cx="330" cy="135" r="16" class="node-circle node-md"/>
+                <use href="#icon-satellite-1" x="322" y="127" width="16" height="16" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-1">
+                <circle cx="510" cy="40" r="15" class="node-circle node-sm"/>
+                <use href="#icon-satellite-2" x="502" y="32" width="16" height="16" class="node-icon-svg"/>
+            </g>
+
+            <!-- Focal Hubs -->
+            <g class="float-group-core-1">
+                <circle cx="460" cy="95" r="38" fill="url(#haloCoreCyan)" class="node-halo-pulse"/>
+                <circle cx="460" cy="95" r="28" class="node-halo-ring"/>
+                <circle cx="460" cy="95" r="22" class="node-circle node-core-1"/>
+                <use href="#icon-primary" x="448" y="83" width="24" height="24" class="node-icon-svg-core"/>
+            </g>
+            <g class="float-group-core-2">
+                <circle cx="560" cy="85" r="34" fill="url(#haloCoreBlue)" class="node-halo-pulse"/>
+                <circle cx="560" cy="85" r="25" class="node-halo-ring"/>
+                <circle cx="560" cy="85" r="20" class="node-circle node-core-2"/>
+                <use href="#icon-secondary" x="550" y="75" width="20" height="20" class="node-icon-svg-core"/>
+            </g>
+
+            <g class="float-group-2">
+                <circle cx="690" cy="65" r="17" class="node-circle node-md"/>
+                <use href="#icon-secondary" x="682" y="57" width="16" height="16" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-1">
+                <circle cx="670" cy="135" r="16" class="node-circle node-md"/>
+                <use href="#icon-satellite-1" x="662" y="127" width="16" height="16" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-3">
+                <circle cx="830" cy="95" r="14" class="node-circle node-sm"/>
+                <use href="#icon-satellite-2" x="823" y="88" width="14" height="14" class="node-icon-svg"/>
+            </g>
+        </g>
+
+        <!-- ========================================================
+             TIER 3 (16–30 Records): Height 130px (viewBox="0 0 1000 130")
+             Focused Core Cluster of 6 Nodes
+             ======================================================== -->
+        {% elif total_count <= 30 %}
+        <g class="network-tier-layer tier-3-layer">
+            <!-- Connecting Curves -->
+            <path class="net-curve" d="M 330,45 Q 400,50 470,65"/>
+            <path class="net-curve" d="M 350,90 Q 410,80 470,65"/>
+            <path class="net-curve net-core-artery" d="M 470,65 Q 510,60 550,60"/>
+            <path class="net-curve" d="M 550,60 Q 610,50 670,50"/>
+            <path class="net-curve" d="M 550,60 Q 600,80 650,90"/>
+            <path class="net-curve-sec" d="M 330,45 Q 490,20 670,50"/>
+
+            <!-- Pulses -->
+            <path class="net-pulse pulse-speed-1" d="M 330,45 Q 400,50 470,65 Q 510,60 550,60 Q 610,50 670,50"/>
+            <path class="net-pulse pulse-speed-2" d="M 350,90 Q 410,80 470,65 Q 510,60 550,60 Q 600,80 650,90"/>
+
+            <!-- Nodes -->
+            <g class="float-group-2">
+                <circle cx="330" cy="45" r="14" class="node-circle node-sm"/>
+                <use href="#icon-secondary" x="323" y="38" width="14" height="14" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-3">
+                <circle cx="350" cy="90" r="13" class="node-circle node-sm"/>
+                <use href="#icon-satellite-1" x="343" y="83" width="14" height="14" class="node-icon-svg"/>
+            </g>
+
+            <!-- Focal Hubs -->
+            <g class="float-group-core-1">
+                <circle cx="470" cy="65" r="30" fill="url(#haloCoreCyan)" class="node-halo-pulse"/>
+                <circle cx="470" cy="65" r="23" class="node-halo-ring"/>
+                <circle cx="470" cy="65" r="18" class="node-circle node-core-1"/>
+                <use href="#icon-primary" x="460" y="55" width="20" height="20" class="node-icon-svg-core"/>
+            </g>
+            <g class="float-group-core-2">
+                <circle cx="550" cy="60" r="26" fill="url(#haloCoreBlue)" class="node-halo-pulse"/>
+                <circle cx="550" cy="60" r="20" class="node-halo-ring"/>
+                <circle cx="550" cy="60" r="16" class="node-circle node-core-2"/>
+                <use href="#icon-secondary" x="542" y="52" width="16" height="16" class="node-icon-svg-core"/>
+            </g>
+
+            <g class="float-group-1">
+                <circle cx="670" cy="50" r="14" class="node-circle node-sm"/>
+                <use href="#icon-secondary" x="663" y="43" width="14" height="14" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-2">
+                <circle cx="650" cy="90" r="13" class="node-circle node-sm"/>
+                <use href="#icon-satellite-1" x="643" y="83" width="14" height="14" class="node-icon-svg"/>
+            </g>
+        </g>
+
+        <!-- ========================================================
+             TIER 4 (>30 Records): Height 80px (viewBox="0 0 1000 80")
+             Sleek Horizontal Stream of 4 Minimal Nodes
+             ======================================================== -->
+        {% else %}
+        <g class="network-tier-layer tier-4-layer">
+            <!-- Connecting Curves -->
+            <path class="net-curve" d="M 300,40 Q 390,26 480,40"/>
+            <path class="net-curve net-core-artery" d="M 480,40 L 550,40"/>
+            <path class="net-curve" d="M 550,40 Q 630,54 710,40"/>
+
+            <!-- Pulses -->
+            <path class="net-pulse pulse-speed-1" d="M 300,40 Q 390,26 480,40 L 550,40 Q 630,54 710,40"/>
+
+            <!-- Nodes -->
+            <g class="float-group-2">
+                <circle cx="300" cy="40" r="12" class="node-circle node-sm"/>
+                <use href="#icon-secondary" x="294" y="34" width="12" height="12" class="node-icon-svg"/>
+            </g>
+            <g class="float-group-core-1">
+                <circle cx="480" cy="40" r="22" fill="url(#haloCoreCyan)" class="node-halo-pulse"/>
+                <circle cx="480" cy="40" r="15" class="node-circle node-core-1"/>
+                <use href="#icon-primary" x="472" y="32" width="16" height="16" class="node-icon-svg-core"/>
+            </g>
+            <g class="float-group-core-2">
+                <circle cx="550" cy="40" r="18" fill="url(#haloCoreBlue)" class="node-halo-pulse"/>
+                <circle cx="550" cy="40" r="13" class="node-circle node-core-2"/>
+                <use href="#icon-secondary" x="544" y="34" width="12" height="12" class="node-icon-svg-core"/>
+            </g>
+            <g class="float-group-1">
+                <circle cx="710" cy="40" r="12" class="node-circle node-sm"/>
+                <use href="#icon-satellite-1" x="704" y="34" width="12" height="12" class="node-icon-svg"/>
+            </g>
+        </g>
+        {% endif %}
+
+    </svg>
+
+</div>

@@ -2,6 +2,8 @@
 {% block title %}Phone Records - CrimeLink AI{% endblock %}
 {% block page_title %}Phone Records{% endblock %}
 {% block content %}
+{% include "components/hero_section.html" with page_type="phones" total_count=total_count %}
+
 <div class="card mb-3"><div class="card-body py-2">
     <form method="get" class="row g-2 align-items-center">
         <div class="col-md-4"><input type="text" name="search" value="{{ search_query }}" class="form-control form-control-sm search-bar" placeholder="Search by caller or receiver..."></div>

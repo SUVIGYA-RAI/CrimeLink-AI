@@ -618,6 +618,307 @@ a:hover {
     background: var(--text-secondary);
 }
 
+/* ============ FLASH MESSAGES ============ */
+.flash-messages-container {
+    flex: 0 0 auto;
+    z-index: 10;
+}
+
+/* ============ PURE VISUAL ABSTRACT INTELLIGENCE NETWORK ============ */
+.adaptive-hero-visual {
+    --hero-accent: #22D3EE;
+    --hero-secondary: #3B82F6;
+    --hero-glow: rgba(34, 211, 238, 0.28);
+    --hero-line: rgba(34, 211, 238, 0.35);
+
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 50%, #0d1728 0%, #090e1a 100%);
+    border: 1px solid rgba(34, 211, 238, 0.2);
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Page Specific Theme Tints */
+.adaptive-hero-visual.theme-cases {
+    --hero-accent: #22D3EE;
+    --hero-secondary: #3B82F6;
+    --hero-glow: rgba(34, 211, 238, 0.28);
+    --hero-line: rgba(34, 211, 238, 0.35);
+    border-color: rgba(34, 211, 238, 0.22);
+}
+
+.adaptive-hero-visual.theme-persons {
+    --hero-accent: #38BDF8;
+    --hero-secondary: #0284C7;
+    --hero-glow: rgba(56, 189, 248, 0.28);
+    --hero-line: rgba(56, 189, 248, 0.35);
+    border-color: rgba(56, 189, 248, 0.22);
+}
+
+.adaptive-hero-visual.theme-vehicles {
+    --hero-accent: #F59E0B;
+    --hero-secondary: #D97706;
+    --hero-glow: rgba(245, 158, 11, 0.25);
+    --hero-line: rgba(245, 158, 11, 0.35);
+    border-color: rgba(245, 158, 11, 0.22);
+}
+
+.adaptive-hero-visual.theme-organizations {
+    --hero-accent: #A855F7;
+    --hero-secondary: #7E22CE;
+    --hero-glow: rgba(168, 85, 247, 0.28);
+    --hero-line: rgba(168, 85, 247, 0.35);
+    border-color: rgba(168, 85, 247, 0.22);
+}
+
+.adaptive-hero-visual.theme-locations {
+    --hero-accent: #10B981;
+    --hero-secondary: #059669;
+    --hero-glow: rgba(168, 85, 247, 0.28);
+    --hero-line: rgba(16, 185, 129, 0.35);
+    border-color: rgba(16, 185, 129, 0.22);
+}
+
+.adaptive-hero-visual.theme-phones {
+    --hero-accent: #818CF8;
+    --hero-secondary: #4F46E5;
+    --hero-glow: rgba(129, 140, 248, 0.28);
+    --hero-line: rgba(129, 140, 248, 0.35);
+    border-color: rgba(129, 140, 248, 0.22);
+}
+
+/* Height Tiers */
+.adaptive-hero-visual.hero-tier-1 { height: 260px !important; }
+.adaptive-hero-visual.hero-tier-2 { height: 190px !important; }
+.adaptive-hero-visual.hero-tier-3 { height: 130px !important; }
+.adaptive-hero-visual.hero-tier-4 { height: 80px !important; }
+
+/* Backdrop & Ambient Lighting */
+.hero-ambient-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 650px 180px at 50% 50%, var(--hero-glow) 0%, rgba(15, 23, 42, 0) 75%);
+    pointer-events: none;
+    z-index: 1;
+    animation: ambientBreathing 6s ease-in-out infinite alternate;
+}
+
+.hero-grid-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, transparent 60%, rgba(9, 14, 26, 0.8) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* The SVG Intelligence Network */
+.intelligence-network-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: relative;
+    z-index: 2;
+    overflow: visible;
+}
+
+/* Connecting Lines */
+.net-curve {
+    fill: none;
+    stroke: var(--hero-line);
+    stroke-width: 1.3px;
+    transition: stroke 0.3s ease;
+}
+
+.net-curve-sec {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 0.9px;
+    stroke-dasharray: 4 3;
+}
+
+.net-core-artery {
+    stroke-width: 1.8px;
+    stroke: var(--hero-accent);
+    opacity: 0.8;
+}
+
+/* Animated Pulses Travelling Along Curves */
+.net-pulse {
+    fill: none;
+    stroke: var(--hero-accent);
+    stroke-width: 2.4px;
+    stroke-linecap: round;
+    stroke-dasharray: 14 180;
+    filter: drop-shadow(0 0 5px var(--hero-accent));
+}
+
+.pulse-speed-1 { animation: pulseFlow 3.8s linear infinite; }
+.pulse-speed-2 { animation: pulseFlow 4.6s linear infinite; animation-delay: -1.5s; }
+.pulse-speed-3 { animation: pulseFlow 5.4s linear infinite; animation-delay: -3s; }
+
+/* Nodes */
+.node-circle {
+    fill: url(#nodeBodyGrad);
+    stroke: var(--hero-accent);
+    stroke-width: 1.6px;
+    cursor: pointer;
+    transition: transform 0.25s ease, filter 0.25s ease, stroke-width 0.25s ease;
+}
+
+.node-circle:hover {
+    filter: drop-shadow(0 0 10px var(--hero-accent));
+    stroke-width: 2.2px;
+}
+
+.node-core-1 {
+    fill: url(#nodeBodyCore);
+    stroke: var(--hero-accent);
+    stroke-width: 2.2px;
+    filter: drop-shadow(0 0 12px var(--hero-glow));
+}
+
+.node-core-2 {
+    fill: url(#nodeBodyCore);
+    stroke: var(--hero-secondary);
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4));
+}
+
+.node-halo-pulse {
+    animation: haloPulseAnim 3.2s ease-in-out infinite alternate;
+    transform-origin: center;
+    pointer-events: none;
+}
+
+.node-halo-ring {
+    fill: none;
+    stroke: var(--hero-accent);
+    stroke-width: 1.2px;
+    stroke-dasharray: 4 2;
+    opacity: 0.45;
+    animation: ringSpin 24s linear infinite;
+    transform-origin: center;
+    pointer-events: none;
+}
+
+/* Node Icons */
+.node-icon-svg {
+    fill: #CBD5E1;
+    pointer-events: none;
+    transition: fill 0.2s ease;
+}
+
+.node-icon-svg-core {
+    fill: #FFFFFF;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
+    pointer-events: none;
+}
+
+.node-circle:hover + .node-icon-svg,
+.node-circle:hover + .node-icon-svg-core {
+    fill: var(--hero-accent);
+}
+
+/* Floating Animations */
+.float-group-1 {
+    animation: float1 5.5s ease-in-out infinite alternate;
+}
+
+.float-group-2 {
+    animation: float2 6.8s ease-in-out infinite alternate;
+}
+
+.float-group-3 {
+    animation: float3 4.8s ease-in-out infinite alternate;
+}
+
+.float-group-core-1 {
+    animation: floatCore1 7s ease-in-out infinite alternate;
+}
+
+.float-group-core-2 {
+    animation: floatCore2 6s ease-in-out infinite alternate;
+}
+
+/* Keyframes */
+@keyframes ambientBreathing {
+    0% { opacity: 0.3; transform: scale(0.96); }
+    100% { opacity: 0.6; transform: scale(1.06); }
+}
+
+@keyframes pulseFlow {
+    from { stroke-dashoffset: 240; }
+    to { stroke-dashoffset: -240; }
+}
+
+@keyframes haloPulseAnim {
+    0% { transform: scale(0.88); opacity: 0.6; }
+    100% { transform: scale(1.15); opacity: 0.95; }
+}
+
+@keyframes ringSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes float1 {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-5px); }
+}
+
+@keyframes float2 {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(6px); }
+}
+
+@keyframes float3 {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-4px); }
+}
+
+@keyframes floatCore1 {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-3px); }
+}
+
+@keyframes floatCore2 {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(3.5px); }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .hero-ambient-glow,
+    .net-pulse,
+    .node-halo-pulse,
+    .node-halo-ring,
+    .float-group-1,
+    .float-group-2,
+    .float-group-3,
+    .float-group-core-1,
+    .float-group-core-2 {
+        animation: none !important;
+    }
+}
+
 /* ============ UTILITIES ============ */
 .text-cyan { color: var(--cyan-primary) !important; }
 .text-muted-custom { color: var(--text-secondary) !important; }
@@ -640,3 +941,4 @@ a:hover {
         margin-left: 0;
     }
 }
+

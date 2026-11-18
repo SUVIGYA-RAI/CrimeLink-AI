@@ -4,6 +4,8 @@
 {% block page_title %}Investigation Cases{% endblock %}
 
 {% block content %}
+{% include "components/hero_section.html" with page_type="cases" total_count=total_count %}
+
 <!-- Top bar: search, filter, and add button -->
 <div class="card mb-3">
     <div class="card-body py-2">

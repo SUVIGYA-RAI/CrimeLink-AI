@@ -30,4 +30,20 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    // Adaptive Visual Intelligence Network Interaction
+    const heroVisual = document.querySelector('.adaptive-hero-visual');
+    if (heroVisual) {
+        const nodes = heroVisual.querySelectorAll('.node-circle');
+        nodes.forEach(function (node) {
+            node.addEventListener('mouseenter', function () {
+                this.style.transform = 'scale(1.22)';
+                this.style.filter = 'drop-shadow(0 0 14px var(--hero-accent))';
+            });
+            node.addEventListener('mouseleave', function () {
+                this.style.transform = '';
+                this.style.filter = '';
+            });
+        });
+    }
 });

@@ -38,7 +38,10 @@ class RegisterForm(forms.ModelForm):
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm password'})
     )
     role = forms.ChoiceField(
-        choices=UserProfile.ROLE_CHOICES,
+        choices=[
+            choice for choice in UserProfile.ROLE_CHOICES
+            if choice[0] != 'admin'
+        ],
         widget=forms.Select(attrs={'class': 'form-select'})
     )
     phone_number = forms.CharField(

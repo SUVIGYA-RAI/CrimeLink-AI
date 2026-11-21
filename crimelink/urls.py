@@ -22,6 +22,9 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('cases/', include('cases.urls')),
     path('entities/', include('entities.urls')),
+    path('data_management/', include('data_management.urls')),
+    path('ai_analysis/', include('ai_analysis.urls')),
+    path('network_analysis/', include('network_analysis.urls')),
 ]
 
 # Serve media files during development

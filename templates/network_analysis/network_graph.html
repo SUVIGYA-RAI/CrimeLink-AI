@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block title %}Network Graph – CrimeLink AI{% endblock %}
+{% block page_title %}Interactive Network Graph{% endblock %}
+
+{% block extra_css %}
+<style>
+#cy {
+    width: 100%;
+    height: 620px;
+    background: #0d1a2d;
+    border-radius: 12px;
+    border: 1px solid #1e3a5f;
+}
+#graph-info-panel {
+    background: #172235;
+    border-radius: 10px;
+    padding: 1rem;
+    min-height: 100px;
+}
+.graph-legend span {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+{% include "components/intelligence_nav.html" %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="text-white mb-1"><i class="bi bi-diagram-3-fill text-info me-2"></i>Interactive Network Graph</h4>
+        <p class="text-secondary small mb-0">{{ node_count }} nodes · {{ edge_count }} edges · Click a node for details.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'network_analysis:network_graph' %}?include_pending=true" class="btn btn-outline-warning btn-sm">
+            Show Pending Too
+        </a>
+        <button onclick="cy.fit()" class="btn btn-outline-info btn-sm"><i class="bi bi-arrows-fullscreen me-1"></i>Fit All</button>
+        <button onclick="cy.reset()" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+        <a href="{% url 'network_analysis:home' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+    </div>
+</div>
+
+<!-- Search -->
+<div class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input id="search-input" type="text" class="form-control form-control-dark" placeholder="Search node by name…">
+    </div>
+    <div class="col-auto">
+        <button onclick="searchNode()" class="btn btn-outline-info btn-sm">Search</button>
+        <button onclick="clearSearch()" class="btn btn-outline-secondary btn-sm ms-1">Clear</button>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Graph Canvas -->
+    <div class="col-lg-9">
+        {% if node_count > 0 %}
+        <div id="cy"></div>
+        {% else %}
+        <div class="text-center py-5" style="background:#0d1a2d;border-radius:12px;border:1px solid #1e3a5f;">
+            <i class="bi bi-diagram-3 text-secondary" style="font-size:3rem;"></i>
+            <p class="text-secondary mt-3">No graph data. Add and verify relationships, then rebuild the graph.</p>
+            <a href="{% url 'ai_analysis:add_relationship' %}" class="btn btn-primary btn-sm me-2">Add Relationship</a>
+            <a href="{% url 'network_analysis:rebuild_graph' %}" class="btn btn-outline-info btn-sm">Rebuild Graph</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Info Panel -->
+    <div class="col-lg-3">
+        <div id="graph-info-panel">
+            <p class="text-secondary small mb-2"><i class="bi bi-cursor-fill me-1"></i>Click a node to see details</p>
+            <div id="node-details" class="text-secondary small">—</div>
+        </div>
+
+        <!-- Legend -->
+        <div class="card-dark p-3 mt-3 graph-legend">
+            <div class="text-secondary small mb-2">Node Colors</div>
+            <div class="mb-1 small"><span style="background:#22D3EE;"></span> <span class="text-secondary">Person</span></div>
+            <div class="mb-1 small"><span style="background:#3B82F6;"></span> <span class="text-secondary">Case</span></div>
+            <div class="mb-1 small"><span style="background:#8B5CF6;"></span> <span class="text-secondary">Organization</span></div>
+            <div class="mb-1 small"><span style="background:#F59E0B;"></span> <span class="text-secondary">Vehicle</span></div>
+            <div class="mb-1 small"><span style="background:#10B981;"></span> <span class="text-secondary">Location</span></div>
+        </div>
+
+        <div class="card-dark p-3 mt-3">
+            <div class="text-secondary small">
+                <div class="mb-1"><strong class="text-info">Nodes:</strong> {{ node_count }}</div>
+                <div class="mb-1"><strong class="text-info">Edges:</strong> {{ edge_count }}</div>
+                <div>
+                    {% if include_pending %}
+                    <span class="badge bg-warning text-dark">Showing pending too</span>
+                    {% else %}
+                    <span class="badge bg-success">Verified only</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if node_count > 0 %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+<script>
+// Graph elements from Django view
+const elements = {{ elements_json|safe }};
+
+// Color map for entity types
+const nodeColors = {
+    person:       '#22D3EE',
+    case:         '#3B82F6',
+    organization: '#8B5CF6',
+    vehicle:      '#F59E0B',
+    location:     '#10B981',
+};
+
+function getColor(entityType) {
+    return nodeColors[entityType] || '#94A3B8';
+}
+
+// Initialise Cytoscape.js
+const cy = cytoscape({
+    container: document.getElementById('cy'),
+    elements: elements,
+    style: [
+        {
+            selector: 'node',
+            style: {
+                'background-color':   (el) => getColor(el.data('entity_type')),
+                'label':              'data(label)',
+                'color':              '#F8FAFC',
+                'font-size':          '10px',
+                'text-valign':        'bottom',
+                'text-margin-y':      '4px',
+                'width':              '36px',
+                'height':             '36px',
+                'border-width':       '2px',
+                'border-color':       '#1e3a5f',
+            }
+        },
+        {
+            selector: 'node:selected',
+            style: {
+                'border-color':  '#F59E0B',
+                'border-width':  '3px',
+            }
+        },
+        {
+            selector: 'edge',
+            style: {
+                'width':              2,
+                'line-color':         '#334155',
+                'target-arrow-color': '#334155',
+                'target-arrow-shape': 'triangle',
+                'curve-style':        'bezier',
+                'label':              'data(label)',
+                'font-size':          '8px',
+                'color':              '#94A3B8',
+                'text-rotation':      'autorotate',
+            }
+        },
+        {
+            selector: '.highlighted',
+            style: {
+                'line-color':         '#22D3EE',
+                'target-arrow-color': '#22D3EE',
+                'width':              3,
+            }
+        }
+    ],
+    layout: { name: 'cose', animate: false, padding: 30, nodeRepulsion: 8000 }
+});
+
+// Click node → show info + highlight connections
+cy.on('tap', 'node', function(evt) {
+    const node = evt.target;
+    cy.elements().removeClass('highlighted');
+    node.connectedEdges().addClass('highlighted');
+    node.neighborhood('node').select();
+
+    document.getElementById('node-details').innerHTML = `
+        <strong class="text-white">${node.data('label')}</strong><br>
+        <span>Type: <span class="text-info">${node.data('entity_type') || '—'}</span></span><br>
+        <span>ID: ${node.data('entity_id') || '—'}</span><br>
+        <span>Connections: ${node.connectedEdges().length}</span>
+    `;
+});
+
+// Click background → reset
+cy.on('tap', function(evt) {
+    if (evt.target === cy) {
+        cy.elements().removeClass('highlighted');
+        cy.elements().unselect();
+        document.getElementById('node-details').innerHTML = '<span class="text-secondary">Click a node to see details</span>';
+    }
+});
+
+// Search function
+function searchNode() {
+    const q = document.getElementById('search-input').value.toLowerCase().trim();
+    if (!q) return;
+    cy.nodes().forEach(n => {
+        if (n.data('label').toLowerCase().includes(q)) {
+            cy.animate({ fit: { eles: n, padding: 80 } });
+            n.select();
+        }
+    });
+}
+
+function clearSearch() {
+    document.getElementById('search-input').value = '';
+    cy.elements().unselect();
+    cy.fit();
+}
+</script>
+{% endif %}
+{% endblock %}

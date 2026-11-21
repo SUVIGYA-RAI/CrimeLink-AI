@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}CSV Validation & Preview – CrimeLink AI{% endblock %}
+{% block page_title %}CSV Dataset Validation & Preview{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="text-white mb-1"><i class="bi bi-file-earmark-spreadsheet-fill text-info me-2"></i>Dataset Validation & Preview</h4>
+            <p class="text-secondary small mb-0">File: <strong class="text-info">{{ uploaded_file.filename }}</strong> — Processed using Pandas data validation.</p>
+        </div>
+        <a href="{% url 'data_management:upload' %}" class="btn btn-outline-secondary btn-sm">← Upload Another</a>
+    </div>
+
+    {% if validation.valid %}
+    <!-- Validation Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon text-info"><i class="bi bi-tag-fill"></i></div>
+                <div class="stat-number" style="font-size:1.25rem;">{{ validation.detected_label }}</div>
+                <div class="stat-label">Detected Schema</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon text-primary"><i class="bi bi-list-ol"></i></div>
+                <div class="stat-number">{{ validation.total_rows }}</div>
+                <div class="stat-label">Total Rows in File</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon text-success"><i class="bi bi-check2-circle"></i></div>
+                <div class="stat-number text-success">{{ validation.valid_rows }}</div>
+                <div class="stat-label">Valid Records</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon text-warning"><i class="bi bi-exclamation-circle"></i></div>
+                <div class="stat-number {% if validation.invalid_rows > 0 %}text-warning{% else %}text-secondary{% endif %}">{{ validation.invalid_rows }}</div>
+                <div class="stat-label">Invalid / Skipped Rows</div>
+            </div>
+        </div>
+    </div>
+
+    {% if validation.errors_list %}
+    <div class="alert alert-dark border-warning small mb-3">
+        <strong class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>Validation Warnings:</strong>
+        <ul class="mb-0 mt-1">
+            {% for err in validation.errors_list %}
+                <li>{{ err }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Preview Table -->
+    <div class="card-dark mb-4">
+        <div class="card-header-dark d-flex justify-content-between align-items-center p-3">
+            <span><i class="bi bi-table me-2"></i>Record Preview (First 10 Rows)</span>
+            <span class="badge bg-secondary">Columns: {{ validation.columns|join:", " }}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark-custom">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        {% for col in validation.columns %}
+                            <th>{{ col|upper }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in validation.preview_rows %}
+                    <tr>
+                        <td class="text-secondary">{{ forloop.counter }}</td>
+                        {% for cell in row %}
+                            <td>{{ cell|default:"—" }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="10" class="text-center text-secondary py-4">No rows found in this CSV.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Confirm Import Action -->
+    <div class="card-dark p-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h6 class="text-white mb-1">Confirm Import Into Database</h6>
+                <p class="text-secondary small mb-0">Records will be saved into SQLite through Django ORM and linked to your investigative case records.</p>
+            </div>
+            <form method="post" action="{% url 'data_management:confirm_import_csv' uploaded_file.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check-lg me-1"></i> Approve & Import Records
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Schema Error -->
+    <div class="card-dark p-4 text-center">
+        <i class="bi bi-x-octagon text-danger" style="font-size:3rem;"></i>
+        <h5 class="text-white mt-3">CSV Schema Validation Failed</h5>
+        <p class="text-secondary">{{ validation.error }}</p>
+        <div class="alert alert-dark border-secondary d-inline-block text-start small">
+            <strong>Expected Columns:</strong><br>
+            - Call Records: <code>caller_number, receiver_number, call_date, call_time, duration</code><br>
+            - Financial: <code>sender_id, receiver_id, amount, transaction_date, transaction_type</code>
+        </div>
+        <div class="mt-3">
+            <a href="{% url 'data_management:upload' %}" class="btn btn-primary btn-sm">Upload A Valid CSV</a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Relationships – CrimeLink AI{% endblock %}
+{% block page_title %}Entity Relationships{% endblock %}
+{% block content %}
+<div class="container-fluid px-0">
+
+{% include "components/intelligence_nav.html" %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="text-white mb-1"><i class="bi bi-link-45deg text-success me-2"></i>Entity Relationships</h4>
+        <p class="text-secondary small mb-0">{{ pending_count }} relationship(s) pending verification.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'ai_analysis:add_relationship' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>Add Relationship
+        </a>
+        <a href="{% url 'network_analysis:network_graph' %}" class="btn btn-outline-info btn-sm">
+            <i class="bi bi-diagram-3 me-1"></i>View Graph
+        </a>
+    </div>
+</div>
+
+<div class="alert alert-dark border-info small mb-3">
+    <i class="bi bi-info-circle text-info me-1"></i>
+    Every relationship must have an evidence reference. Associations here do NOT imply criminal involvement.
+</div>
+
+<div class="card-dark">
+    <div class="table-responsive">
+        <table class="table table-dark-custom">
+            <thead>
+                <tr>
+                    <th>Source Entity</th><th>Relationship</th><th>Target Entity</th>
+                    <th>Confidence</th><th>Evidence</th><th>Status</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in relationships %}
+                <tr>
+                    <td>
+                        <span class="badge bg-dark border border-cyan text-info me-1">{{ r.source_entity_type|capfirst }}</span>
+                        <strong class="text-white">{{ r.get_source_label }}</strong>
+                    </td>
+                    <td><span class="text-warning fw-bold">→</span> <span class="badge bg-secondary">{{ r.relationship_type }}</span> <span class="text-warning fw-bold">→</span></td>
+                    <td>
+                        <span class="badge bg-dark border border-info text-info me-1">{{ r.target_entity_type|capfirst }}</span>
+                        <strong class="text-white">{{ r.get_target_label }}</strong>
+                    </td>
+                    <td class="text-secondary">{{ r.confidence_score|floatformat:2 }}</td>
+                    <td class="text-secondary small">{{ r.evidence_reference|truncatechars:50 }}</td>
+                    <td>
+                        {% if r.review_status == 'verified' %}<span class="badge bg-success">Verified</span>
+                        {% elif r.review_status == 'rejected' %}<span class="badge bg-danger">Rejected</span>
+                        {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if r.review_status != 'verified' %}
+                        <a href="{% url 'ai_analysis:review_relationship' r.pk 'verify' %}" class="btn btn-xs btn-success me-1" title="Verify">
+                            <i class="bi bi-check-lg"></i>
+                        </a>
+                        {% endif %}
+                        {% if r.review_status != 'rejected' %}
+                        <a href="{% url 'ai_analysis:review_relationship' r.pk 'reject' %}" class="btn btn-xs btn-danger" title="Reject">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-secondary py-5">
+                    No relationships yet.
+                    <a href="{% url 'ai_analysis:add_relationship' %}" class="text-info">Add the first one.</a>
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

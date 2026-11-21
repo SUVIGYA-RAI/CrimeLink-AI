@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}AI Analysis Dashboard – CrimeLink AI{% endblock %}
+{% block page_title %}AI Analysis{% endblock %}
+{% block extra_css %}
+<style>
+.stat-card { background:#172235; border-radius:12px; padding:1.25rem; }
+.stat-card .stat-icon { font-size:1.6rem; margin-bottom:.5rem; }
+.stat-card .stat-number { font-size:2rem; font-weight:700; color:#F8FAFC; }
+.stat-card .stat-label { color:#94A3B8; font-size:.8rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid px-0">
+
+    {% include "components/intelligence_nav.html" %}
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="text-white mb-1"><i class="bi bi-cpu-fill text-info me-2"></i>AI Analysis Dashboard</h4>
+            <p class="text-secondary small mb-0">Entity extraction, relationship mapping and anomaly detection.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'ai_analysis:run_anomaly_detection' %}" class="btn btn-warning btn-sm">
+                <i class="bi bi-lightning-fill me-1"></i>Run Anomaly Detection
+            </a>
+            <a href="{% url 'data_management:upload' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>Upload Document
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card"><div class="stat-icon text-info"><i class="bi bi-files"></i></div>
+                <div class="stat-number">{{ total_docs }}</div><div class="stat-label">Documents Processed</div></div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card"><div class="stat-icon text-primary"><i class="bi bi-tags-fill"></i></div>
+                <div class="stat-number">{{ total_entities }}</div><div class="stat-label">Entities Extracted</div></div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card"><div class="stat-icon text-warning"><i class="bi bi-hourglass-split"></i></div>
+                <div class="stat-number">{{ pending_review }}</div><div class="stat-label">Pending Review</div></div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card"><div class="stat-icon text-success"><i class="bi bi-link-45deg"></i></div>
+                <div class="stat-number">{{ approved_rel }}</div><div class="stat-label">Verified Relationships</div></div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card"><div class="stat-icon text-danger"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <div class="stat-number">{{ pending_alerts }}</div><div class="stat-label">Active Alerts</div></div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card"><div class="stat-icon text-secondary"><i class="bi bi-bell-fill"></i></div>
+                <div class="stat-number">{{ total_alerts }}</div><div class="stat-label">Total Alerts</div></div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Entity Type Chart -->
+        <div class="col-lg-5">
+            <div class="card-dark p-3 h-100">
+                <div class="card-header-dark mb-3"><i class="bi bi-pie-chart me-2"></i>Entity Type Distribution</div>
+                {% if chart_labels %}
+                <canvas id="entityChart" height="220"></canvas>
+                {% else %}
+                <p class="text-secondary text-center py-5">No entities extracted yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Entities -->
+        <div class="col-lg-7">
+            <div class="card-dark p-3 h-100">
+                <div class="card-header-dark d-flex justify-content-between mb-3">
+                    <span><i class="bi bi-tags me-2"></i>Recent Extracted Entities</span>
+                    <a href="{% url 'ai_analysis:relationship_list' %}" class="btn btn-xs btn-outline-info">View Relationships</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-dark-custom table-sm">
+                        <thead><tr><th>Entity</th><th>Type</th><th>Method</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for e in recent_entities %}
+                            <tr>
+                                <td>{{ e.entity_text }}</td>
+                                <td><span class="badge bg-dark border border-info text-info">{{ e.entity_type }}</span></td>
+                                <td><span class="badge {% if e.extraction_method == 'spacy' %}bg-primary{% else %}bg-warning text-dark{% endif %}">{{ e.extraction_method }}</span></td>
+                                <td>
+                                    {% if e.review_status == 'approved' %}<span class="badge bg-success">Approved</span>
+                                    {% elif e.review_status == 'rejected' %}<span class="badge bg-danger">Rejected</span>
+                                    {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center text-secondary py-3">No entities yet. Upload a document and run extraction.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Alerts -->
+        <div class="col-lg-6">
+            <div class="card-dark p-3">
+                <div class="card-header-dark d-flex justify-content-between mb-3">
+                    <span><i class="bi bi-exclamation-triangle text-warning me-2"></i>Active Alerts</span>
+                    <a href="{% url 'ai_analysis:alert_list' %}" class="btn btn-xs btn-outline-warning">All Alerts</a>
+                </div>
+                {% for alert in recent_alerts %}
+                <div class="d-flex align-items-start gap-2 mb-2 p-2 rounded" style="background:#0d1a2d;">
+                    <span class="badge {% if alert.severity == 'high' %}bg-danger{% elif alert.severity == 'medium' %}bg-warning text-dark{% else %}bg-secondary{% endif %} mt-1">{{ alert.severity|upper }}</span>
+                    <div>
+                        <div class="text-white small fw-semibold">{{ alert.alert_type }}</div>
+                        <div class="text-secondary" style="font-size:.75rem;">{{ alert.description|truncatechars:100 }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-secondary text-center py-3">No active alerts. Run anomaly detection to generate alerts.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Relationships -->
+        <div class="col-lg-6">
+            <div class="card-dark p-3">
+                <div class="card-header-dark d-flex justify-content-between mb-3">
+                    <span><i class="bi bi-link-45deg text-success me-2"></i>Verified Relationships</span>
+                    <a href="{% url 'ai_analysis:relationship_list' %}" class="btn btn-xs btn-outline-success">All</a>
+                </div>
+                {% for r in recent_rels %}
+                <div class="d-flex align-items-center gap-2 mb-2 p-2 rounded" style="background:#0d1a2d;">
+                    <span class="badge bg-dark border border-success text-success">{{ r.source_entity_type }}</span>
+                    <span class="text-secondary small">→ {{ r.relationship_type }} →</span>
+                    <span class="badge bg-dark border border-info text-info">{{ r.target_entity_type }}</span>
+                </div>
+                {% empty %}
+                <p class="text-secondary text-center py-3">No verified relationships yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if chart_labels %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('entityChart').getContext('2d');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [{
+            data: {{ chart_values|safe }},
+            backgroundColor: ['#22D3EE','#3B82F6','#8B5CF6','#F59E0B','#10B981','#EF4444','#6366F1'],
+            borderWidth: 2,
+            borderColor: '#172235'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#94A3B8', boxWidth: 12 } }
+        }
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

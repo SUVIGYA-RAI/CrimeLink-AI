@@ -942,3 +942,113 @@ a:hover {
     }
 }
 
+
+/* ============================================================
+   CrimeLink AI – Level 2 Additional Styles
+   Appended to style.css — Midnight Intelligence theme
+   ============================================================ */
+
+/* ── Dark cards used by Level 2 pages ───────────────────────────────── */
+.card-dark {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header-dark {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: .82rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: 0 0 .5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ── Stat cards ──────────────────────────────────────────────────────── */
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: border-color .2s;
+}
+.stat-card:hover { border-color: var(--cyan-primary); }
+.stat-card .stat-icon { font-size: 1.6rem; margin-bottom: .5rem; }
+.stat-card .stat-number { font-size: 2rem; font-weight: 700; color: var(--text-main); }
+.stat-card .stat-label { color: var(--text-secondary); font-size: .78rem; }
+
+/* ── Dark table ──────────────────────────────────────────────────────── */
+.table-dark-custom {
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+.table-dark-custom thead th {
+    background: #0d1a2d;
+    color: var(--text-secondary);
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-color: var(--border-color);
+    padding: .75rem 1rem;
+}
+.table-dark-custom tbody tr {
+    border-color: var(--border-color);
+    transition: background .15s;
+}
+.table-dark-custom tbody tr:hover { background: #1a2f4a; }
+.table-dark-custom tbody td {
+    padding: .7rem 1rem;
+    border-color: var(--border-color);
+    vertical-align: middle;
+}
+
+/* ── Extra-small buttons ─────────────────────────────────────────────── */
+.btn-xs {
+    padding: .2rem .55rem;
+    font-size: .72rem;
+    border-radius: 6px;
+    line-height: 1.4;
+}
+.btn-outline-cyan {
+    color: var(--cyan-primary);
+    border-color: var(--cyan-primary);
+}
+.btn-outline-cyan:hover {
+    background: var(--cyan-primary);
+    color: #0B1120;
+}
+
+/* ── Dark form controls ──────────────────────────────────────────────── */
+.form-control-dark,
+.form-select-dark {
+    background: #0d1a2d;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    border-radius: 8px;
+}
+.form-control-dark:focus,
+.form-select-dark:focus {
+    background: #0d1a2d;
+    border-color: var(--cyan-primary);
+    color: var(--text-main);
+    box-shadow: 0 0 0 2px rgba(34, 211, 238, .15);
+}
+.form-control-dark::placeholder { color: var(--text-secondary); }
+.form-select-dark option { background: #172235; }
+
+/* ── File input dark ─────────────────────────────────────────────────── */
+input[type="file"].form-control {
+    background: #0d1a2d;
+    border: 1px dashed var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    padding: .5rem;
+}
+
+/* ── Progress bar helper ─────────────────────────────────────────────── */
+.progress { background: #0d1a2d; }
+
+/* ── text-info shortcut ─────────────────────────────────────────────── */
+.text-cyan { color: var(--cyan-primary) !important; }

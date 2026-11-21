@@ -1,0 +1,43 @@
+FIRST INFORMATION REPORT (SAMPLE / SYNTHETIC DATA ONLY)
+FIR Number: CL-2024-SAMPLE-001
+Date: 15 January 2024
+Police Station: Central Division
+
+INCIDENT SUMMARY:
+On 14 January 2024, an informant reported suspicious activity near the warehouse
+at Sector 7, Industrial Area, Mumbai. The alleged organizer, Ramesh Kumar, was
+seen meeting with Priya Sharma and an unidentified male near a vehicle bearing
+registration number MH 12 AB 3456.
+
+Witnesses stated that a person using phone number 9876543210 was in contact with
+the organization known as Alpha Trading Company. The meetings occurred on
+10 January 2024, 11 January 2024 and 12 January 2024 at the same location.
+
+A financial transaction of approximately Rs. 2,50,000 was reportedly made from
+account ACC003 to account ACC004 on the same dates. The vehicle, registered to
+Priya Sharma, was also seen parked outside the Beta Logistics warehouse located
+at MG Road, Pune.
+
+PERSONS MENTIONED (FOR INVESTIGATION PURPOSES):
+- Ramesh Kumar (alias: RK)
+- Priya Sharma
+- Unknown male (description pending)
+
+ORGANIZATIONS:
+- Alpha Trading Company
+- Beta Logistics
+
+LOCATIONS:
+- Sector 7, Industrial Area, Mumbai
+- MG Road, Pune
+
+PHONE NUMBERS OBSERVED:
+- 9876543210
+- 8800012345
+
+VEHICLES:
+- MH 12 AB 3456
+
+DISCLAIMER: This is a synthetic/anonymized sample FIR created for testing
+the CrimeLink AI system. It does not represent any real persons, organizations
+or events. All names, numbers and locations are fictional.

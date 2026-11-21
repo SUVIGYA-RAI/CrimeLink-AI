@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Uploaded Files – CrimeLink AI{% endblock %}
+{% block page_title %}Uploaded Files{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    {% include "components/intelligence_nav.html" %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="text-white mb-1"><i class="bi bi-files me-2 text-info"></i>Uploaded Files & Datasets</h4>
+            <p class="text-secondary small mb-0">Manage uploaded FIR documents, CSV call records, and financial transaction datasets.</p>
+        </div>
+        <a href="{% url 'data_management:upload' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-cloud-upload me-1"></i>Upload New File
+        </a>
+    </div>
+
+    <div class="card-dark">
+        <div class="table-responsive">
+            <table class="table table-dark-custom">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Filename</th>
+                        <th>Type</th>
+                        <th>Uploaded By</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Summary</th>
+                        <th style="min-width: 140px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in files %}
+                    <tr>
+                        <td class="text-secondary">{{ forloop.counter }}</td>
+                        <td>
+                            <i class="bi {% if f.file_type in 'pdf,txt' %}bi-file-earmark-text text-info{% else %}bi-file-earmark-spreadsheet text-success{% endif %} me-1"></i>
+                            <span class="text-white fw-semibold">{{ f.filename }}</span>
+                        </td>
+                        <td><span class="badge bg-secondary">{{ f.get_file_type_display }}</span></td>
+                        <td>{{ f.uploaded_by.get_full_name|default:f.uploaded_by.username }}</td>
+                        <td>{{ f.uploaded_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            {% if f.status == 'completed' %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Completed</span>
+                            {% elif f.status == 'pending_review' %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Awaiting Import</span>
+                            {% elif f.status == 'error' %}
+                                <span class="badge bg-danger"><i class="bi bi-exclamation-octagon me-1"></i>Error</span>
+                            {% else %}
+                                <span class="badge bg-info text-dark">{{ f.status|capfirst }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-secondary small">{{ f.processing_summary|truncatechars:50|default:"Ready for processing" }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <!-- PDF / TXT actions -->
+                                {% if f.file_type in 'pdf,txt' %}
+                                    {% if f.extracted_entities.exists %}
+                                    <a href="{% url 'ai_analysis:entity_list' f.pk %}" class="btn btn-xs btn-outline-cyan" title="View Extracted Entities">
+                                        <i class="bi bi-tags-fill me-1"></i>Entities ({{ f.extracted_entities.count }})
+                                    </a>
+                                    {% else %}
+                                    <a href="{% url 'ai_analysis:extract_from_file' f.pk %}" class="btn btn-xs btn-outline-primary" title="Extract NLP Entities">
+                                        <i class="bi bi-cpu me-1"></i>Extract
+                                    </a>
+                                    {% endif %}
+                                {% endif %}
+
+                                <!-- CSV actions -->
+                                {% if f.file_type in 'csv_calls,csv_financial' %}
+                                    <a href="{% url 'data_management:preview_csv' f.pk %}" class="btn btn-xs btn-outline-info" title="Preview CSV Records">
+                                        <i class="bi bi-eye me-1"></i>Preview
+                                    </a>
+                                {% endif %}
+
+                                <!-- Delete File & Associated Data -->
+                                <a href="{% url 'data_management:delete_file' f.pk %}"
+                                   class="btn btn-xs btn-outline-danger"
+                                   title="Delete file and associated records"
+                                   onclick="return confirm('Are you sure you want to delete \'{{ f.filename|escapejs }}\' and all its associated extracted entities and records?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-secondary py-5">
+                            No files uploaded yet. <a href="{% url 'data_management:upload' %}" class="text-info">Upload one now.</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -43,8 +43,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 {% block content %}
 
-<!-- STATS CARDS ROW -->
-<div class="row g-3 mb-4">
+<!-- LEVEL 1: PRIMARY ENTITY STATS CARDS ROW -->
+<div class="row g-3 mb-3">
 
     <div class="col-6 col-md-4 col-lg-2">
         <a href="{% url 'cases:case_list' %}" style="text-decoration:none;">
@@ -118,6 +118,73 @@ document.addEventListener('DOMContentLoaded', function () {
         </a>
     </div>
 
+</div>
+
+<!-- LEVEL 2: AI & INTELLIGENCE MODULES ROW -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <a href="{% url 'data_management:index' %}" style="text-decoration:none;">
+            <div class="stat-card" style="border-left: 3px solid #06b6d4;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-value text-info">{{ total_uploaded_files }}</div>
+                        <div class="stat-label">Uploaded Documents / CSVs</div>
+                    </div>
+                    <div class="stat-icon" style="background:rgba(6,182,212,0.15);color:#06b6d4;">
+                        <i class="bi bi-cloud-arrow-up-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <a href="{% url 'ai_analysis:home' %}" style="text-decoration:none;">
+            <div class="stat-card" style="border-left: 3px solid #8b5cf6;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-value" style="color:#a78bfa;">{{ total_extracted_entities }}</div>
+                        <div class="stat-label">AI Extracted Entities ({{ pending_entities }} pending)</div>
+                    </div>
+                    <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <a href="{% url 'network_analysis:home' %}" style="text-decoration:none;">
+            <div class="stat-card" style="border-left: 3px solid #3b82f6;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-value" style="color:#60a5fa;">{{ total_graph_nodes }}</div>
+                        <div class="stat-label">Network Nodes ({{ verified_relationships }} relationships)</div>
+                    </div>
+                    <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6;">
+                        <i class="bi bi-diagram-3-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <a href="{% url 'ai_analysis:alert_list' %}" style="text-decoration:none;">
+            <div class="stat-card" style="border-left: 3px solid #f59e0b;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-value text-warning">{{ active_alerts }}</div>
+                        <div class="stat-label">Active Anomaly Leads</div>
+                    </div>
+                    <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b;">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
 </div>
 
 <!-- SECOND ROW: Recent Cases + Chart -->
@@ -209,9 +276,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 </div>
 
-<!-- THIRD ROW: Quick Actions + Recent Entities -->
+<!-- THIRD ROW: Quick Actions + Level 2 Intelligence Feeds + Recent Persons -->
 <div class="row g-3">
-    <!-- Quick Actions -->
+    <!-- Quick Actions (Level 1 + Level 2) -->
     <div class="col-md-4">
         <div class="card">
             <div class="card-header"><i class="bi bi-lightning-fill me-2 text-cyan"></i>Quick Actions</div>
@@ -219,14 +286,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 <a href="{% url 'cases:case_create' %}" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus-circle me-2"></i>New Case
                 </a>
+                <a href="{% url 'data_management:upload' %}" class="btn btn-outline-info btn-sm">
+                    <i class="bi bi-cloud-upload me-2"></i>Upload Document / CSV
+                </a>
+                <a href="{% url 'network_analysis:network_graph' %}" class="btn btn-outline-cyan btn-sm">
+                    <i class="bi bi-diagram-3 me-2"></i>Interactive Network Graph
+                </a>
+                <a href="{% url 'ai_analysis:home' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-cpu me-2"></i>AI Analysis Dashboard
+                </a>
                 <a href="{% url 'entities:person_create' %}" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-person-plus me-2"></i>Add Person
-                </a>
-                <a href="{% url 'entities:vehicle_create' %}" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-car-front me-2"></i>Add Vehicle
-                </a>
-                <a href="{% url 'entities:phone_record_create' %}" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-telephone-plus me-2"></i>Add Phone Record
                 </a>
                 {% if user.is_superuser or user.profile.role == 'admin' %}
                 <a href="/admin/" class="btn btn-outline-secondary btn-sm" target="_blank">
@@ -237,9 +307,46 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
     </div>
 
+    <!-- Level 2 Anomaly Detection Leads -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-exclamation-diamond-fill me-2 text-warning"></i>Intelligence Alerts</span>
+                <a href="{% url 'ai_analysis:alert_list' %}" class="btn btn-outline-secondary btn-sm">All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_ai_alerts %}
+                <ul class="list-group list-group-flush" style="background:transparent;">
+                    {% for alert in recent_ai_alerts %}
+                    <li class="list-group-item py-2" style="background:transparent;border-color:var(--border-color);color:var(--text-main);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge {% if alert.severity == 'high' %}bg-danger{% elif alert.severity == 'medium' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                {{ alert.severity|upper }}
+                            </span>
+                            <span class="tiny text-muted-custom" style="font-size:10px;">{{ alert.created_at|date:"M j" }}</span>
+                        </div>
+                        <div class="small fw-semibold text-white">{{ alert.alert_type }}</div>
+                        <div class="tiny text-muted-custom" style="font-size:11px;">{{ alert.description|truncatechars:65 }}</div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center text-muted-custom py-4 small">
+                    <i class="bi bi-shield-check text-success d-block mb-1" style="font-size:1.5rem;"></i>
+                    No alerts pending review.
+                    <br>
+                    <a href="{% url 'ai_analysis:run_anomaly_detection' %}" class="btn btn-xs btn-outline-warning mt-2">
+                        Run Detection
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
     <!-- Recently Added Persons -->
     <div class="col-md-4">
-        <div class="card">
+        <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-person-lines-fill me-2 text-cyan"></i>Recent Persons</span>
                 <a href="{% url 'entities:person_list' %}" class="btn btn-outline-secondary btn-sm">All</a>
@@ -266,40 +373,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 {% else %}
                 <div class="text-center text-muted-custom py-4 small">No persons added yet</div>
                 {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- System Info -->
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header"><i class="bi bi-info-circle me-2 text-cyan"></i>System Info</div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted-custom small">Total Users</span>
-                    <strong>{{ total_users }}</strong>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted-custom small">High Priority Cases</span>
-                    <strong class="text-danger">{{ high_priority_cases }}</strong>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted-custom small">Open Cases</span>
-                    <strong class="text-success">{{ open_cases }}</strong>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span class="text-muted-custom small">Total Records</span>
-                    <strong>{{ total_cases|add:total_persons|add:total_vehicles }}</strong>
-                </div>
-
-                <hr style="border-color:var(--border-color);" class="my-2">
-                <div class="text-muted-custom small mb-1">
-                    <i class="bi bi-shield-check me-1 text-success"></i>Logged in as
-                    <strong class="text-main">{{ user.username }}</strong>
-                </div>
-                <div class="text-muted-custom" style="font-size:11px;">
-                    <i class="bi bi-clock me-1"></i>Session active
-                </div>
             </div>
         </div>
     </div>

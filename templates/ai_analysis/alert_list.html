@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Anomaly Alerts – CrimeLink AI{% endblock %}
+{% block page_title %}Anomaly Alerts{% endblock %}
+{% block content %}
+<div class="container-fluid px-0">
+
+{% include "components/intelligence_nav.html" %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="text-white mb-1"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Anomaly Alerts</h4>
+        <p class="text-secondary small mb-0">{{ pending_count }} alert(s) require review.</p>
+    </div>
+    <a href="{% url 'ai_analysis:run_anomaly_detection' %}" class="btn btn-warning btn-sm">
+        <i class="bi bi-lightning-fill me-1"></i>Run Detection Again
+    </a>
+</div>
+
+<div class="alert alert-dark border-info small mb-3">
+    <i class="bi bi-info-circle text-info me-1"></i>
+    <strong>Disclaimer:</strong> These alerts are <em>investigative leads only</em>.
+    An anomaly does NOT imply guilt or criminal involvement. Each alert shows its reason and supporting data.
+</div>
+
+<div class="card-dark">
+    <div class="table-responsive">
+        <table class="table table-dark-custom">
+            <thead>
+                <tr><th>Severity</th><th>Alert Type</th><th>Description</th><th>Related Record</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for alert in alerts %}
+                <tr>
+                    <td>
+                        <span class="badge {% if alert.severity == 'high' %}bg-danger{% elif alert.severity == 'medium' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                            {{ alert.severity|upper }}
+                        </span>
+                    </td>
+                    <td class="text-white">{{ alert.alert_type }}</td>
+                    <td class="text-secondary small">{{ alert.description|truncatechars:120 }}</td>
+                    <td class="text-secondary small">{{ alert.related_record }}</td>
+                    <td class="text-secondary small">{{ alert.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        {% if alert.review_status == 'reviewed' %}<span class="badge bg-success">Reviewed</span>
+                        {% elif alert.review_status == 'dismissed' %}<span class="badge bg-secondary">Dismissed</span>
+                        {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if alert.review_status == 'pending' %}
+                        <a href="{% url 'ai_analysis:review_alert' alert.pk 'reviewed' %}" class="btn btn-xs btn-success me-1">
+                            <i class="bi bi-check-lg"></i> Reviewed
+                        </a>
+                        <a href="{% url 'ai_analysis:review_alert' alert.pk 'dismiss' %}" class="btn btn-xs btn-secondary">
+                            <i class="bi bi-x-lg"></i> Dismiss
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-secondary py-5">
+                        No alerts yet. Upload CSV data and
+                        <a href="{% url 'ai_analysis:run_anomaly_detection' %}" class="text-warning">run anomaly detection</a>.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+FIRST INFORMATION REPORT (FIR) - SAMPLE DATA
+Police Station: Cyber Crime Division, Bengaluru
+Case Reference: CL-2024-CY-088
+Date of Registration: 18 February 2024
+Investigating Officer: Inspector R. K. Sharma
+
+COMPLAINT & INCIDENT DETAILS:
+On 17 February 2024, complainant reported that an unauthorized digital syndicate has been executing coordinated phishing operations across Karnataka and Maharashtra. Primary suspect identified as Vikram Malhotra (alias: Vicky), operating out of Koramangala, Bengaluru.
+
+The suspect was observed operating alongside associate Sunita Verma and technical operator Sameer Khan. On 12 February 2024, suspect Vikram Malhotra was seen arriving at Delta IT Hub located at MG Road, Pune, driving a dark sedan bearing registration plate MH 14 CD 7890.
+
+COMMUNICATION & NETWORK TRACE:
+Multiple phishing calls and OTP interception messages originated from mobile numbers:
+- 9823456781 (Primary suspect: Vikram Malhotra)
+- 9845123456 (Associate: Sunita Verma)
+- 9765432109 (Technical contact: Sameer Khan)
+
+FINANCIAL CHANNEL & ACCOUNTS:
+Stolen proceeds were channeled into intermediary accounts managed under the banner of Apex Global Services. A rapid transfer of Rs. 4,50,000 was executed from account ACC101 to receiver account ACC202 on 15 February 2024. Subsequently, cash withdrawals were logged near Commercial Street, Bengaluru.
+
+ORGANIZATIONS MENTIONED:
+- Delta IT Hub
+- Apex Global Services
+- Cyber Sentinel Solutions
+
+VEHICLES OBSERVED:
+- MH 14 CD 7890
+- KA 01 MJ 4321
+
+LOCATIONS IDENTIFIED:
+- Koramangala, Bengaluru
+- MG Road, Pune
+- Commercial Street, Bengaluru
+
+DISCLAIMER:
+This document is strictly synthetic, anonymized demonstration data generated for the CrimeLink AI academic evaluation project. All names, numbers, institutions, and locations are simulated.

@@ -1,0 +1,13 @@
+sender_id,receiver_id,amount,transaction_date,transaction_type
+ACC101,ACC202,450000.00,2024-02-14,wire_transfer
+ACC101,ACC202,320000.00,2024-02-14,wire_transfer
+ACC101,ACC202,5000.00,2024-02-15,online_payment
+ACC101,ACC202,5000.00,2024-02-15,online_payment
+ACC101,ACC202,5000.00,2024-02-15,online_payment
+ACC202,ACC303,125000.00,2024-02-15,interbank_transfer
+ACC202,ACC404,180000.00,2024-02-15,interbank_transfer
+ACC303,ACC505,1500.00,2024-02-16,merchant_pay
+ACC404,ACC505,2200.00,2024-02-16,merchant_pay
+ACC505,ACC606,850.00,2024-02-16,pos_debit
+ACC202,ACC707,850000.00,2024-02-17,hawala_suspicious
+ACC707,ACC808,420000.00,2024-02-17,overseas_remittance

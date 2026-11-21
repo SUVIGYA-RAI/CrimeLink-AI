@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'cases',
     'entities',
     'dashboard',
+    'data_management',
+    'ai_analysis',
+    'network_analysis',
 ]
 
 MIDDLEWARE = [

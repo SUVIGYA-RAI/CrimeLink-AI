@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Review Extracted Case - CrimeLink AI{% endblock %}
+{% block page_title %}Case Extraction Review{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <a href="{% url 'ai_analysis:home' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>AI Dashboard
+        </a>
+        <a href="{% url 'data_management:file_list' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-files me-1"></i>Files
+        </a>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge {% if extracted_case.review_status == 'approved' %}bg-success{% elif extracted_case.review_status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %} p-2">
+            Status: {{ extracted_case.get_review_status_display }}
+        </span>
+    </div>
+</div>
+
+<div class="alert alert-info py-2 d-flex align-items-center gap-2 mb-4" style="background:rgba(34,211,238,0.1);border-color:rgba(34,211,238,0.3);color:var(--cyan-primary);">
+    <i class="bi bi-shield-exclamation fs-5"></i>
+    <div>
+        <strong>Case-Centric Review:</strong> All extracted entities are structured under this investigation case.
+        No permanent database records are created until you approve this case.
+    </div>
+</div>
+
+{% if extracted_case.review_status == 'approved' and extracted_case.committed_case %}
+<div class="alert alert-success d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <i class="bi bi-check-circle-fill me-2"></i>This case was approved and committed to <strong>Case {{ extracted_case.committed_case.case_number }}</strong>.
+    </div>
+    <a href="{% url 'cases:case_detail' extracted_case.committed_case.pk %}" class="btn btn-sm btn-success">
+        View Permanent Case File <i class="bi bi-arrow-right ms-1"></i>
+    </a>
+</div>
+{% endif %}
+
+<form method="post" action="{% url 'ai_analysis:review_extracted_case_action' extracted_case.pk 'approve' %}">
+    {% csrf_token %}
+
+    <div class="row g-3">
+        <!-- Left: Case Header and Parameters -->
+        <div class="col-lg-7">
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-folder-check me-2 text-cyan"></i>Case-Level Intelligence</span>
+                    <span class="text-muted-custom small">Source: {{ extracted_case.uploaded_file.filename }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Option to link to existing case or create new -->
+                        <div class="col-12 p-3 rounded" style="background:rgba(11,17,32,0.5);border:1px solid var(--border-color);">
+                            <label class="form-label text-warning small fw-semibold">
+                                <i class="bi bi-link-45deg me-1"></i>Commit Mode: Create New Case OR Link To Existing Case
+                            </label>
+                            <select name="target_case_id" class="form-select form-select-sm">
+                                <option value="">-- Create As A New Case --</option>
+                                {% for ec in all_cases %}
+                                <option value="{{ ec.pk }}" {% if ec.case_number == extracted_case.case_number %}selected{% endif %}>
+                                    Merge into Existing Case: {{ ec.case_number }} - {{ ec.title|truncatechars:40 }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="text-muted-custom small mt-1">If "Create New Case" is selected, the fields below will populate the new case.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Case / FIR Number</label>
+                            <input type="text" name="case_number" value="{{ extracted_case.case_number }}" class="form-control" placeholder="e.g. CL-2024-001">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Case Type</label>
+                            <select name="case_type" class="form-select">
+                                {% for val, label in case_type_choices %}
+                                <option value="{{ val }}" {% if extracted_case.case_type == val %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Case Title</label>
+                            <input type="text" name="title" value="{{ extracted_case.title }}" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Incident Location</label>
+                            <input type="text" name="location" value="{{ extracted_case.incident_location }}" class="form-control" placeholder="e.g. Sector 18, Noida">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description / Summary</label>
+                            <textarea name="description" rows="4" class="form-control">{{ extracted_case.description }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extracted Phone Calls Section -->
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-telephone-fill me-2 text-cyan"></i>Extracted Call Records ({{ phone_records|length }})</div>
+                <div class="card-body p-0">
+                    {% if phone_records %}
+                    <div class="table-responsive">
+                        <table class="table mb-0 small">
+                            <thead>
+                                <tr><th>Caller</th><th>Receiver</th><th>Duration</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for pr in phone_records %}
+                                <tr>
+                                    <td><code>{{ pr.caller_number }}</code></td>
+                                    <td><code>{{ pr.receiver_number }}</code></td>
+                                    <td>{{ pr.duration }}s</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="p-3 text-muted-custom small text-center">No explicit call records extracted.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Extracted Relationships Section -->
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-diagram-3-fill me-2 text-cyan"></i>Extracted Entity Relationships ({{ relationships|length }})</div>
+                <div class="card-body p-0">
+                    {% if relationships %}
+                    <ul class="list-group list-group-flush" style="background:transparent;">
+                        {% for r in relationships %}
+                        <li class="list-group-item py-2 px-3 small d-flex justify-content-between align-items-center" style="background:transparent;border-color:var(--border-color);color:var(--text-main);">
+                            <div>
+                                <strong>{{ r.source_name }}</strong>
+                                <span class="badge bg-secondary mx-2">{{ r.relationship_type }}</span>
+                                <strong>{{ r.target_name }}</strong>
+                                <div class="text-muted-custom small">{{ r.evidence }}</div>
+                            </div>
+                            <span class="badge bg-success">Verified Lead</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="p-3 text-muted-custom small text-center">Direct case-to-entity links will be generated automatically upon approval.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Extracted Entities Breakdown -->
+        <div class="col-lg-5">
+            <!-- Persons -->
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-people-fill me-2 text-cyan"></i>Persons & Roles ({{ persons|length }})</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if persons %}
+                    <ul class="list-group list-group-flush" style="background:transparent;">
+                        {% for p in persons %}
+                        <li class="list-group-item py-2 px-3 small d-flex justify-content-between align-items-center" style="background:transparent;border-color:var(--border-color);color:var(--text-main);">
+                            <div>
+                                <strong>{{ p.full_name }}</strong>
+                                <span class="badge bg-primary ms-1">{{ p.role }}</span>
+                                {% if p.phone_number %}<div class="text-muted-custom small"><i class="bi bi-telephone me-1"></i>{{ p.phone_number }}</div>{% endif %}
+                            </div>
+                            <span class="text-muted-custom small">Will link to Case</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="p-3 text-muted-custom small text-center">No persons identified.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Vehicles -->
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-car-front-fill me-2 text-cyan"></i>Vehicles ({{ vehicles|length }})</div>
+                <div class="card-body p-0">
+                    {% if vehicles %}
+                    <ul class="list-group list-group-flush" style="background:transparent;">
+                        {% for v in vehicles %}
+                        <li class="list-group-item py-2 px-3 small d-flex justify-content-between align-items-center" style="background:transparent;border-color:var(--border-color);color:var(--text-main);">
+                            <div>
+                                <code>{{ v.registration_number }}</code>
+                                <span class="text-muted-custom ms-1">({{ v.model_name }}, {{ v.color }})</span>
+                            </div>
+                            <span class="text-muted-custom small">Will link to Case</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="p-3 text-muted-custom small text-center">No vehicles identified.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Organizations -->
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-building me-2 text-cyan"></i>Organizations ({{ organizations|length }})</div>
+                <div class="card-body p-0">
+                    {% if organizations %}
+                    <ul class="list-group list-group-flush" style="background:transparent;">
+                        {% for o in organizations %}
+                        <li class="list-group-item py-2 px-3 small d-flex justify-content-between align-items-center" style="background:transparent;border-color:var(--border-color);color:var(--text-main);">
+                            <div>
+                                <strong>{{ o.name }}</strong>
+                                <span class="badge bg-secondary ms-1 small">{{ o.organization_type }}</span>
+                            </div>
+                            <span class="text-muted-custom small">Will link to Case</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="p-3 text-muted-custom small text-center">No organizations identified.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Locations -->
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-geo-alt-fill me-2 text-cyan"></i>Locations ({{ locations|length }})</div>
+                <div class="card-body p-0">
+                    {% if locations %}
+                    <ul class="list-group list-group-flush" style="background:transparent;">
+                        {% for l in locations %}
+                        <li class="list-group-item py-2 px-3 small d-flex justify-content-between align-items-center" style="background:transparent;border-color:var(--border-color);color:var(--text-main);">
+                            <div>
+                                <strong>{{ l.location_name }}</strong>
+                                {% if l.city %}<span class="text-muted-custom ms-1 small">({{ l.city }})</span>{% endif %}
+                            </div>
+                            <span class="text-muted-custom small">Will link to Case</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="p-3 text-muted-custom small text-center">No locations identified.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Row -->
+    <div class="card p-3 mb-5" style="background:var(--card-bg);border:1px solid var(--border-color);">
+        <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+            <div class="text-muted-custom small">
+                <i class="bi bi-info-circle me-1"></i>Approval will create or update the case, link all records, and update the Network Graph.
+            </div>
+            <div class="d-flex gap-2">
+                {% if extracted_case.review_status != 'approved' %}
+                <button type="submit" class="btn btn-cyan px-4">
+                    <i class="bi bi-check-circle-fill me-1"></i>Approve & Commit to Case Database
+                </button>
+                <a href="{% url 'ai_analysis:review_extracted_case_action' extracted_case.pk 'reject' %}" class="btn btn-outline-danger" onclick="return confirm('Reject this extracted case? Staged data will be marked rejected and nothing will be added to the database.');">
+                    <i class="bi bi-x-circle me-1"></i>Reject
+                </a>
+                {% endif %}
+                <a href="{% url 'ai_analysis:home' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

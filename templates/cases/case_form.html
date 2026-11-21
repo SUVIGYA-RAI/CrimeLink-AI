@@ -5,18 +5,28 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-8">
+    <div class="col-lg-10">
         <div class="d-flex gap-2 mb-3">
+            {% if case %}
+            <a href="{% url 'cases:case_detail' case.pk %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Case
+            </a>
+            {% else %}
             <a href="{% url 'cases:case_list' %}" class="btn btn-sm btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i>Back to Cases
             </a>
+            {% endif %}
         </div>
 
-        <div class="card">
-            <div class="card-header"><i class="bi bi-folder-plus me-2 text-cyan"></i>{{ title }}</div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
+        <form method="post">
+            {% csrf_token %}
+            <!-- Case Main Fields Card -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-folder-fill me-2 text-cyan"></i>{{ title }} Details</span>
+                    {% if case %}<span class="badge bg-secondary">Case #{{ case.case_number }}</span>{% endif %}
+                </div>
+                <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Case Number <span class="text-danger">*</span></label>
@@ -39,9 +49,12 @@
                         <div class="col-12">
                             <label class="form-label">Description <span class="text-danger">*</span></label>
                             {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
+                            {% endif %}
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Location</label>
+                            <label class="form-label">Incident Location</label>
                             {{ form.location }}
                         </div>
                         <div class="col-md-6">
@@ -53,16 +66,137 @@
                             {{ form.priority }}
                         </div>
                     </div>
-
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-cyan px-4">
-                            <i class="bi bi-check-circle me-1"></i>{{ action }} Case
-                        </button>
-                        <a href="{% url 'cases:case_list' %}" class="btn btn-outline-secondary">Cancel</a>
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
+
+            {% if case %}
+            <!-- Manage Associated Entities Card (Edit Mode) -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-diagram-3-fill me-2 text-cyan"></i>Manage Associated Entities</span>
+                    <span class="small text-muted-custom">Check or uncheck records to associate or disassociate</span>
+                </div>
+                <div class="card-body">
+                    <!-- Nav tabs for entities -->
+                    <ul class="nav nav-tabs border-bottom border-secondary mb-3" id="entityTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active text-light" id="tab-persons" data-bs-toggle="tab" data-bs-target="#content-persons" type="button" role="tab">
+                                <i class="bi bi-person-lines-fill me-1 text-cyan"></i>Persons ({{ linked_person_ids|length }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-light" id="tab-vehicles" data-bs-toggle="tab" data-bs-target="#content-vehicles" type="button" role="tab">
+                                <i class="bi bi-car-front-fill me-1 text-cyan"></i>Vehicles ({{ linked_vehicle_ids|length }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-light" id="tab-orgs" data-bs-toggle="tab" data-bs-target="#content-orgs" type="button" role="tab">
+                                <i class="bi bi-building me-1 text-cyan"></i>Organizations ({{ linked_org_ids|length }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-light" id="tab-locs" data-bs-toggle="tab" data-bs-target="#content-locs" type="button" role="tab">
+                                <i class="bi bi-geo-alt-fill me-1 text-cyan"></i>Locations ({{ linked_loc_ids|length }})
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="entityTabsContent">
+                        <!-- Persons Tab -->
+                        <div class="tab-pane fade show active" id="content-persons" role="tabpanel">
+                            <div class="row g-2" style="max-height: 260px; overflow-y: auto;">
+                                {% for person in all_persons %}
+                                <div class="col-md-6">
+                                    <div class="form-check p-2 rounded" style="background:rgba(11,17,32,0.4);border:1px solid var(--border-color);">
+                                        <input class="form-check-input ms-1 me-2" type="checkbox" name="associated_persons" value="{{ person.pk }}" id="person_{{ person.pk }}"
+                                            {% if person.pk in linked_person_ids %}checked{% endif %}>
+                                        <label class="form-check-label text-white" for="person_{{ person.pk }}">
+                                            <strong>{{ person.full_name }}</strong>
+                                            {% if person.phone_number %}<span class="text-muted-custom small">({{ person.phone_number }})</span>{% endif %}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <p class="text-muted-custom small p-2">No person records exist yet.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Vehicles Tab -->
+                        <div class="tab-pane fade" id="content-vehicles" role="tabpanel">
+                            <div class="row g-2" style="max-height: 260px; overflow-y: auto;">
+                                {% for vehicle in all_vehicles %}
+                                <div class="col-md-6">
+                                    <div class="form-check p-2 rounded" style="background:rgba(11,17,32,0.4);border:1px solid var(--border-color);">
+                                        <input class="form-check-input ms-1 me-2" type="checkbox" name="associated_vehicles" value="{{ vehicle.pk }}" id="vehicle_{{ vehicle.pk }}"
+                                            {% if vehicle.pk in linked_vehicle_ids %}checked{% endif %}>
+                                        <label class="form-check-label text-white" for="vehicle_{{ vehicle.pk }}">
+                                            <code>{{ vehicle.registration_number }}</code> - {{ vehicle.model_name }}
+                                            <span class="text-muted-custom small">({{ vehicle.color }})</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <p class="text-muted-custom small p-2">No vehicle records exist yet.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Organizations Tab -->
+                        <div class="tab-pane fade" id="content-orgs" role="tabpanel">
+                            <div class="row g-2" style="max-height: 260px; overflow-y: auto;">
+                                {% for org in all_organizations %}
+                                <div class="col-md-6">
+                                    <div class="form-check p-2 rounded" style="background:rgba(11,17,32,0.4);border:1px solid var(--border-color);">
+                                        <input class="form-check-input ms-1 me-2" type="checkbox" name="associated_organizations" value="{{ org.pk }}" id="org_{{ org.pk }}"
+                                            {% if org.pk in linked_org_ids %}checked{% endif %}>
+                                        <label class="form-check-label text-white" for="org_{{ org.pk }}">
+                                            <strong>{{ org.name }}</strong>
+                                            <span class="badge bg-secondary ms-1 small">{{ org.get_organization_type_display }}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <p class="text-muted-custom small p-2">No organization records exist yet.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Locations Tab -->
+                        <div class="tab-pane fade" id="content-locs" role="tabpanel">
+                            <div class="row g-2" style="max-height: 260px; overflow-y: auto;">
+                                {% for loc in all_locations %}
+                                <div class="col-md-6">
+                                    <div class="form-check p-2 rounded" style="background:rgba(11,17,32,0.4);border:1px solid var(--border-color);">
+                                        <input class="form-check-input ms-1 me-2" type="checkbox" name="associated_locations" value="{{ loc.pk }}" id="loc_{{ loc.pk }}"
+                                            {% if loc.pk in linked_loc_ids %}checked{% endif %}>
+                                        <label class="form-check-label text-white" for="loc_{{ loc.pk }}">
+                                            <strong>{{ loc.location_name }}</strong>
+                                            <span class="text-muted-custom small ms-1">{{ loc.city }}, {{ loc.state }}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <p class="text-muted-custom small p-2">No location records exist yet.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="d-flex gap-2 mb-4">
+                <button type="submit" class="btn btn-cyan px-4">
+                    <i class="bi bi-check-circle me-1"></i>{{ action }} Case
+                </button>
+                {% if case %}
+                <a href="{% url 'cases:case_detail' case.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                {% else %}
+                <a href="{% url 'cases:case_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                {% endif %}
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

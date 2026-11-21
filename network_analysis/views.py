@@ -89,6 +89,10 @@ def _get_entity_label(entity_type, entity_id):
             from cases.models import Case
             obj = Case.objects.get(pk=entity_id)
             return f"{obj.case_number} - {obj.title}"
+        elif entity_type in ('phone', 'phonerecord'):
+            from entities.models import PhoneRecord
+            obj = PhoneRecord.objects.get(pk=entity_id)
+            return f"{obj.caller_number} → {obj.receiver_number}"
     except Exception:
         pass
     return f"{entity_type}:{entity_id}"

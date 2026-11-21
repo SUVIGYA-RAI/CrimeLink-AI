@@ -7,13 +7,30 @@
 <div class="row justify-content-center">
     <div class="col-lg-7">
         <div class="d-flex gap-2 mb-3">
-            <a href="{% url 'entities:person_list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            {% if case %}
+            <a href="{% url 'cases:case_detail' case.pk %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Case {{ case.case_number }}
+            </a>
+            {% else %}
+            <a href="{% url 'entities:person_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Persons
+            </a>
+            {% endif %}
         </div>
+
+        {% if case %}
+        <div class="alert alert-info py-2 d-flex align-items-center gap-2 mb-3" style="background:rgba(34,211,238,0.1);border-color:rgba(34,211,238,0.3);color:var(--cyan-primary);">
+            <i class="bi bi-shield-lock-fill"></i>
+            <div>Creating person associated with Case: <strong>{{ case.case_number }} - {{ case.title }}</strong></div>
+        </div>
+        {% endif %}
+
         <div class="card">
             <div class="card-header"><i class="bi bi-person-plus me-2 text-cyan"></i>{{ title }}</div>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
+                    {% if case %}<input type="hidden" name="case_id" value="{{ case.pk }}">{% endif %}
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label">Full Name <span class="text-danger">*</span></label>
@@ -41,13 +58,17 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label">Related Cases</label>
-                            <div class="text-muted-custom small mb-1">Hold Ctrl/Cmd to select multiple</div>
+                            <div class="text-muted-custom small mb-1">Hold Ctrl/Cmd to select multiple cases</div>
                             {{ form.related_cases }}
                         </div>
                     </div>
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-cyan px-4"><i class="bi bi-check-circle me-1"></i>{{ action }} Person</button>
+                        {% if case %}
+                        <a href="{% url 'cases:case_detail' case.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                        {% else %}
                         <a href="{% url 'entities:person_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        {% endif %}
                     </div>
                 </form>
             </div>

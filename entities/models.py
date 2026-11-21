@@ -54,8 +54,8 @@ class Vehicle(models.Model):
     color = models.CharField(max_length=50)
     # Vehicle owner is a person
     owner = models.ForeignKey(Person, on_delete=models.SET_NULL, null=True, blank=True, related_name='vehicles')
-    # Related case
-    related_case = models.ForeignKey(Case, on_delete=models.SET_NULL, null=True, blank=True, related_name='vehicles')
+    # Related cases (a vehicle can be associated with multiple cases)
+    related_cases = models.ManyToManyField(Case, blank=True, related_name='vehicles')
     date_added = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -63,6 +63,34 @@ class Vehicle(models.Model):
 
     def __str__(self):
         return f"{self.registration_number} - {self.model_name}"
+
+    @property
+    def related_case(self):
+        """Backward-compatible helper returning the first associated case."""
+        if hasattr(self, '_pending_related_case'):
+            return self._pending_related_case
+        if self.pk:
+            return self.related_cases.first()
+        return None
+
+    @related_case.setter
+    def related_case(self, case):
+        if self.pk:
+            if case:
+                self.related_cases.set([case])
+            else:
+                self.related_cases.clear()
+        else:
+            self._pending_related_case = case
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if hasattr(self, '_pending_related_case'):
+            if self._pending_related_case:
+                self.related_cases.set([self._pending_related_case])
+            else:
+                self.related_cases.clear()
+            delattr(self, '_pending_related_case')
 
 
 class Organization(models.Model):
@@ -118,8 +146,8 @@ class PhoneRecord(models.Model):
     call_date = models.DateField()
     call_time = models.TimeField()
     duration = models.PositiveIntegerField(help_text="Duration in seconds")
-    # Phone record must be linked to a case
-    related_case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='phone_records')
+    # Phone record can be associated with a case
+    related_case = models.ForeignKey(Case, on_delete=models.SET_NULL, null=True, blank=True, related_name='phone_records')
     date_added = models.DateTimeField(auto_now_add=True)
 
     class Meta:

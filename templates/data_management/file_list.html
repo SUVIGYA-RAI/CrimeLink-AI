@@ -59,13 +59,13 @@
                             <div class="d-flex align-items-center gap-1">
                                 <!-- PDF / TXT actions -->
                                 {% if f.file_type in 'pdf,txt' %}
-                                    {% if f.extracted_entities.exists %}
-                                    <a href="{% url 'ai_analysis:entity_list' f.pk %}" class="btn btn-xs btn-outline-cyan" title="View Extracted Entities">
-                                        <i class="bi bi-tags-fill me-1"></i>Entities ({{ f.extracted_entities.count }})
+                                    {% if f.extracted_cases.exists %}
+                                    <a href="{% url 'ai_analysis:review_extracted_case' f.extracted_cases.first.pk %}" class="btn btn-xs btn-outline-cyan" title="Review Extracted Case">
+                                        <i class="bi bi-shield-check me-1"></i>Review Case
                                     </a>
                                     {% else %}
-                                    <a href="{% url 'ai_analysis:extract_from_file' f.pk %}" class="btn btn-xs btn-outline-primary" title="Extract NLP Entities">
-                                        <i class="bi bi-cpu me-1"></i>Extract
+                                    <a href="{% url 'ai_analysis:extract_from_file' f.pk %}" class="btn btn-xs btn-outline-primary" title="Run AI Case Extraction">
+                                        <i class="bi bi-cpu me-1"></i>Extract Case
                                     </a>
                                     {% endif %}
                                 {% endif %}

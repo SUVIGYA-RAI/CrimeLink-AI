@@ -19,8 +19,18 @@
                 <div class="col-12"><div class="detail-label">Owner</div>
                     <div class="detail-value">{% if vehicle.owner %}<a href="{% url 'entities:person_detail' vehicle.owner.pk %}">{{ vehicle.owner.full_name }}</a>{% else %}Unknown{% endif %}</div>
                 </div>
-                <div class="col-12"><div class="detail-label">Related Case</div>
-                    <div class="detail-value">{% if vehicle.related_case %}<a href="{% url 'cases:case_detail' vehicle.related_case.pk %}">{{ vehicle.related_case.case_number }} - {{ vehicle.related_case.title }}</a>{% else %}-{% endif %}</div>
+                <div class="col-12"><div class="detail-label">Associated Cases</div>
+                    <div class="detail-value">
+                        {% for case in vehicle.related_cases.all %}
+                            <a href="{% url 'cases:case_detail' case.pk %}" class="badge bg-secondary text-decoration-none me-1 mb-1 p-2">
+                                <i class="bi bi-folder2-open me-1"></i>{{ case.case_number }} - {{ case.title }}
+                            </a>
+                        {% empty %}
+                            {% if vehicle.related_case %}
+                                <a href="{% url 'cases:case_detail' vehicle.related_case.pk %}" class="badge bg-secondary text-decoration-none p-2">{{ vehicle.related_case.case_number }} - {{ vehicle.related_case.title }}</a>
+                            {% else %}<span class="text-muted-custom">No cases associated</span>{% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>

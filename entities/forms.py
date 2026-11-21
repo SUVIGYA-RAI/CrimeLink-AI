@@ -29,15 +29,24 @@ class VehicleForm(forms.ModelForm):
 
     class Meta:
         model = Vehicle
-        fields = ['registration_number', 'vehicle_type', 'model_name', 'color', 'owner', 'related_case']
+        fields = ['registration_number', 'vehicle_type', 'model_name', 'color', 'owner', 'related_cases']
         widgets = {
             'registration_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. MH12AB1234'}),
             'vehicle_type': forms.Select(attrs={'class': 'form-select'}),
             'model_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Vehicle model'}),
             'color': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Color'}),
             'owner': forms.Select(attrs={'class': 'form-select'}),
-            'related_case': forms.Select(attrs={'class': 'form-select'}),
+            'related_cases': forms.SelectMultiple(attrs={'class': 'form-select', 'size': 4}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Handle backward compatibility if single 'related_case' was submitted
+        if self.data and 'related_case' in self.data and 'related_cases' not in self.data:
+            self.data = self.data.copy()
+            val = self.data.get('related_case')
+            if val:
+                self.data.setlist('related_cases', [val])
 
     def clean_registration_number(self):
         reg = self.cleaned_data.get('registration_number')

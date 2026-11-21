@@ -1,22 +1,70 @@
 {% extends "base.html" %}
 {% block title %}{{ title }} - CrimeLink AI{% endblock %}
 {% block page_title %}{{ title }}{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center"><div class="col-lg-6">
-    <div class="d-flex gap-2 mb-3"><a href="{% url 'entities:location_list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a></div>
-    <div class="card"><div class="card-header"><i class="bi bi-geo-alt me-2 text-cyan"></i>{{ title }}</div>
-    <div class="card-body"><form method="post">{% csrf_token %}
-        <div class="row g-3">
-            <div class="col-12"><label class="form-label">Location Name <span class="text-danger">*</span></label>{{ form.location_name }}</div>
-            <div class="col-12"><label class="form-label">Address</label>{{ form.address }}</div>
-            <div class="col-md-6"><label class="form-label">City <span class="text-danger">*</span></label>{{ form.city }}</div>
-            <div class="col-md-6"><label class="form-label">State <span class="text-danger">*</span></label>{{ form.state }}</div>
-            <div class="col-12"><label class="form-label">Related Cases</label><div class="text-muted-custom small mb-1">Hold Ctrl/Cmd to select multiple</div>{{ form.related_cases }}</div>
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="d-flex gap-2 mb-3">
+            {% if case %}
+            <a href="{% url 'cases:case_detail' case.pk %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Case {{ case.case_number }}
+            </a>
+            {% else %}
+            <a href="{% url 'entities:location_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Locations
+            </a>
+            {% endif %}
         </div>
-        <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-cyan px-4"><i class="bi bi-check-circle me-1"></i>{{ action }} Location</button>
-            <a href="{% url 'entities:location_list' %}" class="btn btn-outline-secondary">Cancel</a>
+
+        {% if case %}
+        <div class="alert alert-info py-2 d-flex align-items-center gap-2 mb-3" style="background:rgba(34,211,238,0.1);border-color:rgba(34,211,238,0.3);color:var(--cyan-primary);">
+            <i class="bi bi-shield-lock-fill"></i>
+            <div>Creating location associated with Case: <strong>{{ case.case_number }} - {{ case.title }}</strong></div>
         </div>
-    </form></div></div>
-</div></div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header"><i class="bi bi-geo-alt me-2 text-cyan"></i>{{ title }}</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% if case %}<input type="hidden" name="case_id" value="{{ case.pk }}">{% endif %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Location Name <span class="text-danger">*</span></label>
+                            {{ form.location_name }}
+                            {% if form.location_name.errors %}<div class="text-danger small mt-1">{{ form.location_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Address</label>
+                            {{ form.address }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">City <span class="text-danger">*</span></label>
+                            {{ form.city }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">State <span class="text-danger">*</span></label>
+                            {{ form.state }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Related Cases</label>
+                            <div class="text-muted-custom small mb-1">Hold Ctrl/Cmd to select multiple cases</div>
+                            {{ form.related_cases }}
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-cyan px-4"><i class="bi bi-check-circle me-1"></i>{{ action }} Location</button>
+                        {% if case %}
+                        <a href="{% url 'cases:case_detail' case.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                        {% else %}
+                        <a href="{% url 'entities:location_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

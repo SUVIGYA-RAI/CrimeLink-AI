@@ -1,7 +1,34 @@
-from django.test import TestCase
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from django.test import SimpleTestCase, TestCase
 from django.contrib.auth.models import User
 from data_management.models import UploadedFile, CallRecord, FinancialTransaction
+from data_management.services.csv_processor import validate_and_preview_csv
 from datetime import date, time
+
+
+class CsvProcessorTest(SimpleTestCase):
+    def test_financial_csv_preview_includes_columns_and_rows(self):
+        with TemporaryDirectory() as temp_dir:
+            csv_path = Path(temp_dir) / 'financial.csv'
+            csv_path.write_text(
+                'sender_id,receiver_id,amount,transaction_date,transaction_type\n'
+                'ACC001,ACC002,125.50,2024-01-15,transfer\n',
+                encoding='utf-8',
+            )
+
+            result = validate_and_preview_csv(csv_path)
+
+        self.assertTrue(result['valid'])
+        self.assertEqual(
+            result['columns'],
+            ['sender_id', 'receiver_id', 'amount', 'transaction_date', 'transaction_type'],
+        )
+        self.assertEqual(
+            result['preview_rows'],
+            [['ACC001', 'ACC002', '125.5', '2024-01-15', 'transfer']],
+        )
 
 
 class DataManagementModelsTest(TestCase):

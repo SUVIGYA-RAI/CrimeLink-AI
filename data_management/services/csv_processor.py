@@ -21,6 +21,7 @@ def validate_and_preview_csv(file_path):
     df = pd.read_csv(file_path)
     # Normalize column names to lowercase and strip whitespace
     df.columns = df.columns.str.strip().str.lower()
+    columns_list = list(df.columns)
     cols = set(df.columns)
 
     detected_type = None

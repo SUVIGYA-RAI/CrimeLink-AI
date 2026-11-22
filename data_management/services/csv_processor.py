@@ -6,11 +6,58 @@ Provides preview, data type checking, missing value detection, and ORM insertion
 """
 
 import pandas as pd
-from datetime import datetime
-from ..models import CallRecord, FinancialTransaction, UploadedFile
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from ..models import CallRecord, FinancialTransaction
 
 CALL_COLUMNS = {'caller_number', 'receiver_number', 'call_date', 'call_time', 'duration'}
 FINANCIAL_COLUMNS = {'sender_id', 'receiver_id', 'amount', 'transaction_date', 'transaction_type'}
+
+
+def _validate_csv_row(row, detected_type):
+    errors = []
+
+    if detected_type == 'csv_calls':
+        for column in ('caller_number', 'receiver_number', 'call_date', 'call_time'):
+            value = row.get(column)
+            if pd.isna(value) or not str(value).strip():
+                errors.append(f"Missing {column}")
+            elif column in ('call_date', 'call_time'):
+                try:
+                    CallRecord._meta.get_field(column).clean(str(value).strip(), None)
+                except ValidationError:
+                    errors.append(f"Invalid {column}")
+        try:
+            duration = int(row.get('duration', 0))
+            if duration < 0:
+                errors.append("Negative duration")
+            else:
+                CallRecord._meta.get_field('duration').clean(duration, None)
+        except (ValueError, TypeError):
+            errors.append("Invalid duration integer")
+        except ValidationError:
+            errors.append("Invalid duration integer")
+
+    elif detected_type == 'csv_financial':
+        for column in ('sender_id', 'receiver_id', 'transaction_date', 'transaction_type'):
+            value = row.get(column)
+            if pd.isna(value) or not str(value).strip():
+                errors.append(f"Missing {column}")
+            elif column == 'transaction_date':
+                try:
+                    FinancialTransaction._meta.get_field(column).clean(str(value).strip(), None)
+                except ValidationError:
+                    errors.append(f"Invalid {column}")
+        if pd.isna(row.get('amount')):
+            errors.append("Missing amount")
+        else:
+            try:
+                if float(row.get('amount')) <= 0:
+                    errors.append("Amount must be positive")
+            except (ValueError, TypeError):
+                errors.append("Invalid decimal amount")
+
+    return errors
 
 
 def validate_and_preview_csv(file_path):
@@ -45,45 +92,12 @@ def validate_and_preview_csv(file_path):
     errors_list = []
     valid_count = 0
 
-    if detected_type == 'csv_calls':
-        for idx, row in df.iterrows():
-            row_num = idx + 1
-            row_errs = []
-            if pd.isna(row.get('caller_number')) or not str(row.get('caller_number')).strip():
-                row_errs.append("Missing caller_number")
-            if pd.isna(row.get('receiver_number')) or not str(row.get('receiver_number')).strip():
-                row_errs.append("Missing receiver_number")
-            try:
-                dur = int(row.get('duration', 0))
-                if dur < 0:
-                    row_errs.append("Negative duration")
-            except (ValueError, TypeError):
-                row_errs.append("Invalid duration integer")
-
-            if row_errs:
-                errors_list.append(f"Row {row_num}: {', '.join(row_errs)}")
-            else:
-                valid_count += 1
-
-    elif detected_type == 'csv_financial':
-        for idx, row in df.iterrows():
-            row_num = idx + 1
-            row_errs = []
-            if pd.isna(row.get('sender_id')) or not str(row.get('sender_id')).strip():
-                row_errs.append("Missing sender_id")
-            if pd.isna(row.get('receiver_id')) or not str(row.get('receiver_id')).strip():
-                row_errs.append("Missing receiver_id")
-            try:
-                amt = float(row.get('amount', 0))
-                if amt <= 0:
-                    row_errs.append("Amount must be positive")
-            except (ValueError, TypeError):
-                row_errs.append("Invalid decimal amount")
-
-            if row_errs:
-                errors_list.append(f"Row {row_num}: {', '.join(row_errs)}")
-            else:
-                valid_count += 1
+    for idx, row in df.iterrows():
+        row_errors = _validate_csv_row(row, detected_type)
+        if row_errors:
+            errors_list.append(f"Row {idx + 1}: {', '.join(row_errors)}")
+        else:
+            valid_count += 1
 
     # Convert first 10 rows to list of lists for simple template rendering
     preview_rows = []
@@ -103,50 +117,70 @@ def validate_and_preview_csv(file_path):
     }
 
 
-def import_csv_records(file_path, uploaded_file=None):
+def import_csv_records(file_path, uploaded_file, related_case):
     """
-    Parses CSV and creates ORM objects in the database.
+    Imports valid CSV rows and links them to the selected case.
     """
+    if related_case is None:
+        raise ValueError("A case must be selected before importing CSV records.")
+
     df = pd.read_csv(file_path)
     df.columns = df.columns.str.strip().str.lower()
     cols = set(df.columns)
 
-    created_count = 0
     if CALL_COLUMNS.issubset(cols):
-        for _, row in df.iterrows():
-            try:
-                CallRecord.objects.create(
-                    uploaded_file=uploaded_file,
-                    caller_number=str(row['caller_number']).strip(),
-                    receiver_number=str(row['receiver_number']).strip(),
-                    call_date=str(row['call_date']).strip(),
-                    call_time=str(row['call_time']).strip(),
-                    duration=int(row['duration']),
-                )
-                created_count += 1
-            except Exception:
-                continue
         detected_type = 'csv_calls'
-        summary = f"Successfully imported {created_count} call detail record(s)."
-
     elif FINANCIAL_COLUMNS.issubset(cols):
-        for _, row in df.iterrows():
-            try:
-                FinancialTransaction.objects.create(
-                    uploaded_file=uploaded_file,
-                    sender_id=str(row['sender_id']).strip(),
-                    receiver_id=str(row['receiver_id']).strip(),
-                    amount=float(row['amount']),
-                    transaction_date=str(row['transaction_date']).strip(),
-                    transaction_type=str(row['transaction_type']).strip(),
-                )
-                created_count += 1
-            except Exception:
-                continue
         detected_type = 'csv_financial'
-        summary = f"Successfully imported {created_count} financial transaction(s)."
     else:
         raise ValueError("CSV schema does not match known formats.")
+
+    created_count = 0
+    row_errors = []
+    with transaction.atomic():
+        for idx, row in df.iterrows():
+            validation_errors = _validate_csv_row(row, detected_type)
+            if validation_errors:
+                row_errors.append(f"Row {idx + 1}: {', '.join(validation_errors)}")
+                continue
+
+            try:
+                if detected_type == 'csv_calls':
+                    CallRecord.objects.create(
+                        uploaded_file=uploaded_file,
+                        related_case=related_case,
+                        caller_number=str(row['caller_number']).strip(),
+                        receiver_number=str(row['receiver_number']).strip(),
+                        call_date=str(row['call_date']).strip(),
+                        call_time=str(row['call_time']).strip(),
+                        duration=int(row['duration']),
+                    )
+                else:
+                    FinancialTransaction.objects.create(
+                        uploaded_file=uploaded_file,
+                        related_case=related_case,
+                        sender_id=str(row['sender_id']).strip(),
+                        receiver_id=str(row['receiver_id']).strip(),
+                        amount=float(row['amount']),
+                        transaction_date=str(row['transaction_date']).strip(),
+                        transaction_type=str(row['transaction_type']).strip(),
+                    )
+            except (ValidationError, ValueError, TypeError) as error:
+                row_errors.append(f"Row {idx + 1}: {error}")
+                continue
+            created_count += 1
+
+    if not created_count:
+        details = '; '.join(row_errors[:5]) or 'The CSV contains no data rows.'
+        raise ValueError(f"No valid rows were imported. {details}")
+
+    record_label = 'call detail record(s)' if detected_type == 'csv_calls' else 'financial transaction(s)'
+    summary = (
+        f"Imported {created_count} {record_label} and linked them to case "
+        f"{related_case.case_number}."
+    )
+    if row_errors:
+        summary += f" Skipped {len(row_errors)} invalid row(s): {'; '.join(row_errors[:5])}"
 
     return {
         'detected_type': detected_type,

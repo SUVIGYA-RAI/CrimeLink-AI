@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
+from cases.models import Case
 from .forms import UploadedFileForm
 from .models import UploadedFile, CallRecord, FinancialTransaction
 from .services.csv_processor import validate_and_preview_csv, import_csv_records
@@ -106,6 +107,7 @@ def preview_csv(request, file_id):
     context = {
         'uploaded_file': uploaded_file,
         'validation':    validation,
+        'cases':         Case.objects.order_by('-date_created'),
     }
     return render(request, 'data_management/preview_csv.html', context)
 
@@ -116,14 +118,25 @@ def confirm_import_csv(request, file_id):
     uploaded_file = get_object_or_404(UploadedFile, pk=file_id)
 
     if request.method == 'POST':
+        case_id = request.POST.get('related_case', '').strip()
         try:
-            result = import_csv_records(uploaded_file.file.path, uploaded_file=uploaded_file)
+            related_case = Case.objects.get(pk=case_id)
+        except (Case.DoesNotExist, ValueError, TypeError):
+            messages.error(request, 'Select a valid case before importing this CSV.')
+            return redirect('data_management:preview_csv', file_id=file_id)
+
+        try:
+            result = import_csv_records(
+                uploaded_file.file.path,
+                uploaded_file=uploaded_file,
+                related_case=related_case,
+            )
             uploaded_file.file_type = result['detected_type']
             uploaded_file.processing_summary = result['summary']
             uploaded_file.status = 'completed'
             uploaded_file.save()
             messages.success(request, result['summary'])
-        except Exception as e:
+        except ValueError as e:
             uploaded_file.status = 'error'
             uploaded_file.processing_summary = str(e)
             uploaded_file.save()

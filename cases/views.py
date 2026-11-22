@@ -67,6 +67,8 @@ def case_detail(request, pk):
     organizations = case.organizations.all()
     locations = case.locations.all()
     phone_records = case.phone_records.order_by('-call_date', '-call_time')
+    csv_call_records = case.call_records.select_related('uploaded_file').order_by('-call_date', '-call_time')
+    financial_transactions = case.financial_transactions.select_related('uploaded_file').order_by('-transaction_date')
 
     # Available entities for the "Link Existing Entity" modal/dropdowns
     available_persons = Person.objects.exclude(related_cases=case).order_by('full_name')
@@ -82,6 +84,8 @@ def case_detail(request, pk):
         'organizations': organizations,
         'locations': locations,
         'phone_records': phone_records,
+        'csv_call_records': csv_call_records,
+        'financial_transactions': financial_transactions,
         'available_persons': available_persons,
         'available_vehicles': available_vehicles,
         'available_organizations': available_organizations,

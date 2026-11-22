@@ -145,6 +145,60 @@
             </div>
         </div>
 
+        {% if csv_call_records %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="bi bi-file-earmark-spreadsheet me-2 text-info"></i>CSV Call Records ({{ csv_call_records.count }})
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0 small">
+                    <thead>
+                        <tr><th>Caller</th><th>Receiver</th><th>Date</th><th>Time</th><th>Duration</th><th>Source CSV</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for rec in csv_call_records %}
+                        <tr>
+                            <td><code>{{ rec.caller_number }}</code></td>
+                            <td><code>{{ rec.receiver_number }}</code></td>
+                            <td>{{ rec.call_date|date:"M j, Y" }}</td>
+                            <td>{{ rec.call_time }}</td>
+                            <td>{{ rec.duration }} sec</td>
+                            <td>{{ rec.uploaded_file.filename|default:"—" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if financial_transactions %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="bi bi-cash-stack me-2 text-success"></i>CSV Financial Transactions ({{ financial_transactions.count }})
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0 small">
+                    <thead>
+                        <tr><th>Sender</th><th>Receiver</th><th>Amount</th><th>Date</th><th>Type</th><th>Source CSV</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for txn in financial_transactions %}
+                        <tr>
+                            <td>{{ txn.sender_id }}</td>
+                            <td>{{ txn.receiver_id }}</td>
+                            <td>{{ txn.amount }}</td>
+                            <td>{{ txn.transaction_date|date:"M j, Y" }}</td>
+                            <td>{{ txn.transaction_type }}</td>
+                            <td>{{ txn.uploaded_file.filename|default:"—" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Organizations Section -->
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
